@@ -1,10 +1,12 @@
+const form_data: Map<string, Array<string>> = get_Form();
+
 //[출고요청/업로드]폴더 >> 주문현황/에러확인으로 데이터 옮김
 async function fetch_Order() {
-  const form_data: Map<string, Array<string>> = get_Form();
+  //const form_data: Map<string, Array<string>> = get_Form();
   //@ts-ignore
   const files: any = DriveApp.getFolderById(find_Ref('업로드')).getFilesByType(MimeType.GOOGLE_SHEETS);
   
-  const target_sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('ㅎㅎ');
+  const target_sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('에러확인');
   
   while (files.hasNext()){
     let file = files.next();
@@ -16,9 +18,7 @@ async function fetch_Order() {
           SpreadsheetApp.openById(file.getId()).getSheets()[0].deleteRow(1);
         }
       }
-      if (separator[2] == '헤이홈양식') {
-        await set_Format(file.getId(), '@');
-      }
+      await set_Format(file.getId(), '@');
       input_data = await fetch_Data(file.getId(), form_data.get(separator[2]));
       target_sheet.insertRowsAfter(1, input_data.length);
       target_sheet.getRange(2, 4, input_data.length, input_data[0].length).setNumberFormat('@').setValues(input_data);
@@ -35,6 +35,7 @@ async function set_Format(id: string, format: string) {
 //각 시트에서 주문현황/에러확인으로 데이터 옮기기
 async function fetch_Data(file_id: string, form: Array<string>) {
   //데이터에 , 가 있을 경우 처리
+  /*
   if (form.indexOf(',')) {
     form = form.map((f) => {
       if (f.indexOf(',') != -1) {
@@ -65,6 +66,39 @@ async function fetch_Data(file_id: string, form: Array<string>) {
     input_data.splice(0, 1);
   }
   input_data.splice(0, 1);
+  */
+
+  //데이터 가져오기
+  const orig_data = SpreadsheetApp.openById(file_id).getDataRange().getValues();
+  orig_data.splice(0, 1);
+
+  //input_data 만들기
+  let input_data: Array<Array<string>> = new Array();
+  orig_data.forEach((o: Array<string>, index: number) => {
+    input_data[index] = new Array();
+    form.forEach((f: string) => {
+      console.log(f);
+      if (f = 'none') {
+        input_data[index].push('');
+        return;
+      }
+      let spl = f.split(',');
+      let temp: string;
+      for (let s of spl) {
+        console.log(s);
+        let ss = convert_Column(s);
+        console.log(ss);
+        if (o[ss as number - 1]) {
+          temp = o[ss as number - 1];
+          break;
+        }
+      }
+      console.log(temp);
+      input_data[index].push(temp);
+    });
+  });
+
+  console.log(input_data);
 
   return input_data;
 }
