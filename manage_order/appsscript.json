@@ -1,0 +1,24 @@
+{
+  "timeZone": "Asia/Tokyo",
+  "dependencies": {
+    "enabledAdvancedServices": [{
+      "userSymbol": "Drive",
+      "serviceId": "drive",
+      "version": "v2"
+    }, {
+      "userSymbol": "BigQuery",
+      "serviceId": "bigquery",
+      "version": "v2"
+    }, {
+      "userSymbol": "Gmail",
+      "serviceId": "gmail",
+      "version": "v1"
+    }, {
+      "userSymbol": "Sheets",
+      "serviceId": "sheets",
+      "version": "v4"
+    }]
+  },
+  "exceptionLogging": "STACKDRIVER",
+  "runtimeVersion": "V8"
+}
