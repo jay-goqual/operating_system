@@ -7,20 +7,24 @@ function onOpen() {
   .createMenu('출고관리')
   .addItem('주문 취합', 'fetch_Order_button')
   .addSeparator()
+  .addItem('주문제출', 'submit_Order_button')
+  .addSeparator()
   .addToUi();
 }
 
 async function fetch_Order_button() {
   const trash_files = await fetch_Order();
 
-  /*
   trash_files.forEach((f) => {
     DriveApp.getFolderById(ref.get('업로드/아카이브')).addFile(f);
     f.getParents().next().removeFile(f);
   });
-  */
 
   SpreadsheetApp.getUi().alert('주문 취합이 완료되었습니다.\n에러를 확인해주세요');
+}
+
+async function submit_Order_button() {
+  await fetch_Additional_info();
 }
 
 /*

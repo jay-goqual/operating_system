@@ -90,7 +90,7 @@ async function fetch_Data(file_id: string, fetch_form: Array<string>, identifier
       return;
     }
     input_data[index] = new Array();
-    input_data[index].push(Utilities.formatDate(new Date(), 'GMT+9', 'yy/MM/dd HH:mm'));
+    input_data[index].push(Utilities.formatDate(new Date(), 'GMT+9', 'yyyy/MM/dd HH:mm'));
     input_data[index].push(identifier[1]);
     input_data[index].push(identifier[2]);
 
@@ -101,11 +101,16 @@ async function fetch_Data(file_id: string, fetch_form: Array<string>, identifier
         input_data[index][j] = '';
         return;
       }
+
+      if (column !== '주소' && column !== '배송메세지' && column! == '옵션정보' && column !== '결제일') {
+        let i = convert_Column(f);
+        o[i as number - 1] = o[i as number - 1].split(' ').join('');
+      }
       
       //배송메세지 \n 삭제
       if (column === '배송메세지') {
         let i = convert_Column(f);
-        input_data[index][j]= o[i as number - 1].split('\n').join('');
+        input_data[index][j] = o[i as number - 1].split('\n').join('');
         return;
       }
 
@@ -135,15 +140,13 @@ async function fetch_Data(file_id: string, fetch_form: Array<string>, identifier
       }
       
       let comma = f.split(',');
-      let temp: any;
       for (let c of comma) {
         let i = convert_Column(c);
         if (o[i as number - 1]) {
-          temp = o[i as number - 1];
+          input_data[index][j] = o[i as number - 1];
           break;
         }
       }
-      input_data[index][j] = temp as string;
     });
   });
 
@@ -170,12 +173,11 @@ function convert_Column(col: string | number) {
     return str;
   }
 }
-
+/*
 //쿼리 스트링 만들기
 async function get_Query_string(form: Array<string>) {
 
   let query: string = form.filter(f => f != 'none').join(', ') as string;
   return query;
 }
-
-//빈 데이터 채우기
+*/

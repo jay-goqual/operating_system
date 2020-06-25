@@ -37,7 +37,6 @@ function get_Client() {
 function get_Fetch_form() {
   //const table = SpreadsheetApp.openById(ref['출고요청/요청양식']).getDataRange().getValues();
   const table: Array<Array<string>> = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('요청양식').getDataRange().getValues();
-  table.splice(0, 1);
   
   let fetch_form: Map<string, Array<string>> = new Map();
   
@@ -63,7 +62,6 @@ function get_Product() {
 //[전역]양식정보 가져오기
 function get_Order_form() {
   const table: Array<Array<any>> = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('주문양식').getDataRange().getValues();
-  table.splice(0, 1);
   
   let order_form: Map<string, number> = new Map();
   
@@ -77,7 +75,6 @@ function get_Order_form() {
 //[전역]택배사 가져오기
 function get_Delivery() {
   const table: Array<Array<any>> = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('택배사').getDataRange().getValues();
-  table.splice(0, 1);
   
   let delivery: Map<string, string> = new Map();
   

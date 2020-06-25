@@ -7,10 +7,11 @@ async function get_Error() {
 }
 
 async function modify_Error() {
-
 }
 
-async function fetch_Product_info() {
+async function fetch_Additional_info() {
+
+    //상품정보 가져오기
     const productInfo = get_Product();
 
     const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('에러확인');
@@ -33,17 +34,18 @@ async function fetch_Product_info() {
                 total.set(o[order_form.get('주문번호')], o[order_form.get('판매액')]);
             }
         } else {
-            o[order_form.get('상품명')] = `can't find product`;
-            o[order_form.get('출고채널')] = `can't find product`;
-            o[order_form.get('택배사')] = `can't find product`;
-            o[order_form.get('판매액')] = `can't find product`;
+            o[order_form.get('상품명')] = `error`;
+            o[order_form.get('출고채널')] = `error`;
+            o[order_form.get('택배사')] = `error`;
+            o[order_form.get('판매액')] = `error`;
         }
         return o;
     });
 
-    //배송비 구하기
     order.map((o) => {
-        let orderId = o[order_form.get('주문번호')];
+
+        //배송비 구하기
+        let orderId: string = o[order_form.get('주문번호')];
         let code = o[order_form.get('상품코드')];
         let t = total.get(orderId);
         let p = productInfo.get(code);
@@ -55,8 +57,26 @@ async function fetch_Product_info() {
                 total.set(orderId, -1);
             }
         } else {
-            o[order_form.get('배송비')] = 'undefined';
+            o[order_form.get('배송비')] = 'error';
         }
+
+        //결제일 양식 통일 및 변경
+        let date = order_form.get('결제일');
+        if (!o[date]) {
+            let assume = new Date(orderId.substring(0, 4) + '-' + orderId.substring(4, 6) + '-' + orderId.substring(6, 8) + ' 00:00');
+            let today = new Date(o[order_form.get('접수일')]);
+
+            //@ts-ignore
+            if (Math.abs(assume.getFullYear() - today.getFullYear()) > 3 || isNaN(assume.getFullYear())) {
+                o[date] = today;
+            } else {
+                o[date] = assume;
+            }
+        } else {
+            o[date] = new Date(o[date]);
+        }
+        o[date] = Utilities.formatDate(o[date], 'GMT+9', 'yyyy/MM/dd HH:mm');
+
         return o;
     });
 
