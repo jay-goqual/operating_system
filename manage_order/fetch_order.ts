@@ -1,17 +1,19 @@
-const form_data: Map<string, Array<string>> = get_Form();
+var fetch_form: Map<string, Array<string>> = get_Fetch_form();
+var ref = get_Ref();
+var order_form = get_Order_form();
 
 //[출고요청/업로드]폴더 >> 주문현황/에러확인으로 데이터 옮김
 async function fetch_Order() {
-  //const form_data: Map<string, Array<string>> = get_Form();
+  //const fetch_form: Map<string, Array<string>> = get_Form();
   //@ts-ignore
-  const files: any = DriveApp.getFolderById(find_Ref('업로드')).getFilesByType(MimeType.GOOGLE_SHEETS);
-  
+  const files: any = DriveApp.getFolderById(ref.get('업로드')).getFilesByType(MimeType.GOOGLE_SHEETS);
   const target_sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('에러확인');
+  const trash_files = new Array();
   
   while (files.hasNext()){
     let file = files.next();
     let separator = file.getName().split('_');
-    if (form_data.get(separator[2])) {
+    if (fetch_form.get(separator[2])) {
       let input_data: Array<Array<string>>;
       if (separator[2] == '스마트스토어') {
         if (SpreadsheetApp.openById(file.getId()).getSheets()[0].getRange(1, 1).getValue().length > 10) {
@@ -19,13 +21,14 @@ async function fetch_Order() {
         }
       }
       await set_Format(file.getId(), '@');
-      input_data = await fetch_Data(file.getId(), form_data.get(separator[2]));
+      input_data = await fetch_Data(file.getId(), fetch_form.get(separator[2]), separator);
       target_sheet.insertRowsAfter(1, input_data.length);
-      target_sheet.getRange(2, 4, input_data.length, input_data[0].length).setNumberFormat('@').setValues(input_data);
+      target_sheet.getRange(2, 1, input_data.length, input_data[0].length).setNumberFormat('@').setValues(input_data);
     }
+    trash_files.push(file);
   }
 
-  return;
+  return trash_files;
 }
 
 async function set_Format(id: string, format: string) {
@@ -33,7 +36,7 @@ async function set_Format(id: string, format: string) {
 }
 
 //각 시트에서 주문현황/에러확인으로 데이터 옮기기
-async function fetch_Data(file_id: string, form: Array<string>) {
+async function fetch_Data(file_id: string, fetch_form: Array<string>, identifier: Array<string>) {
   //데이터에 , 가 있을 경우 처리
   /*
   if (form.indexOf(',')) {
@@ -74,31 +77,75 @@ async function fetch_Data(file_id: string, form: Array<string>) {
 
   //input_data 만들기
   let input_data: Array<Array<string>> = new Array();
+  const temp = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('요청양식').getDataRange().getValues();
+  
+  let form_index = new Array();
+  temp[0].forEach((t, i) => {
+    form_index[i] = t;
+  });
+
   orig_data.forEach((o: Array<string>, index: number) => {
+    let i = convert_Column(fetch_form[0]);
+    if (!o[i as number - 1]) {
+      return;
+    }
     input_data[index] = new Array();
-    form.forEach((f: string) => {
-      console.log(f);
-      if (f = 'none') {
-        input_data[index].push('');
+    input_data[index].push(Utilities.formatDate(new Date(), 'GMT+9', 'yy/MM/dd HH:mm'));
+    input_data[index].push(identifier[1]);
+    input_data[index].push(identifier[2]);
+
+    fetch_form.forEach((f: string, id: number) => {
+      let column = form_index[id + 1];
+      let j = order_form.get(column);
+      if (f === 'none') {
+        input_data[index][j] = '';
         return;
       }
-      let spl = f.split(',');
-      let temp: string;
-      for (let s of spl) {
-        console.log(s);
-        let ss = convert_Column(s);
-        console.log(ss);
-        if (o[ss as number - 1]) {
-          temp = o[ss as number - 1];
+      
+      //배송메세지 \n 삭제
+      if (column === '배송메세지') {
+        let i = convert_Column(f);
+        input_data[index][j]= o[i as number - 1].split('\n').join('');
+        return;
+      }
+
+      //우편번호 양식 변경
+      if (column === '우편번호') {
+        let i = convert_Column(f);
+        /*
+        if (o[i as number - 1].indexOf('-') != -1) {
+          input_data[index][j] = o[i as number - 1];
+        } else {
+          input_data[index][j] = Utilities.formatString('%05d', o[i as number - 1]);
+        }
+        */
+        input_data[index][j] = Utilities.formatString('%05d', o[i as number - 1].split('-').join(''));
+        return;
+      }
+      
+      //전화번호 양식변경
+      if (column === '주문자연락처' || column === '수령인연락처') {
+        let i = convert_Column(f);
+        if (o[i as number - 1].indexOf('-') == -1) {
+          input_data[index][j] = o[i as number - 1];
+        } else {
+          input_data[index][j] = o[i as number - 1].split('-').join('');
+        }
+        return;
+      }
+      
+      let comma = f.split(',');
+      let temp: any;
+      for (let c of comma) {
+        let i = convert_Column(c);
+        if (o[i as number - 1]) {
+          temp = o[i as number - 1];
           break;
         }
       }
-      console.log(temp);
-      input_data[index].push(temp);
+      input_data[index][j] = temp as string;
     });
   });
-
-  console.log(input_data);
 
   return input_data;
 }
