@@ -20,11 +20,11 @@ async function submit_Order() {
     if (submit_table.length > 0) {
         target_sheet.insertRowsAfter(1, submit_table.length);
         target_sheet.getRange(2, 1, submit_table.length, submit_table[0].length).setNumberFormat('@').setValues(submit_table);
-    }
-    if (error_table.length > 0) {
         error_sheet.deleteRows(2, error_sheet.getLastRow() - 1);
-        error_sheet.insertRowsAfter(1, error_table.length);
-        error_sheet.getRange(2, 1, error_table.length, error_table[0].length).setNumberFormat('@').setValues(error_table);
+        if (error_table.length > 0) {
+            error_sheet.insertRowsAfter(1, error_table.length);
+            error_sheet.getRange(2, 1, error_table.length, error_table[0].length).setNumberFormat('@').setValues(error_table);
+        }
     }
 }
 
@@ -46,10 +46,10 @@ async function fetch_Additional_info() {
         let code = order_form.get('상품코드');
         let p = productInfo.get(o[code]);
         if (p) {
-            o[order_form.get('상품명')] = p[0];
-            o[order_form.get('출고채널')] = p[1];
-            o[order_form.get('택배사')] = delivery.get(p[1]);
-            o[order_form.get('판매액')] = Number(p[2]) * o[order_form.get('수량')];
+            o[order_form.get('상품명')] = p.get('상품명');
+            o[order_form.get('출고채널')] = p.get('출고채널');
+            o[order_form.get('택배사')] = delivery.get(p.get('출고채널'));
+            o[order_form.get('판매액')] = Number(p.get('판매가')) * o[order_form.get('수량')];
             if (total.has(o[order_form.get('주문번호')])) {
                 total.set(o[order_form.get('주문번호')], total.get(o[order_form.get('주문번호')]) + o[order_form.get('판매액')]);
             } else {
@@ -74,10 +74,10 @@ async function fetch_Additional_info() {
         let t = total.get(orderId);
         let p = productInfo.get(code);
         if (p) {
-            if (Number(t) > Number(p[3]) || t == -1) {
+            if (Number(t) > Number(p.get('무료배송기준')) || t == -1) {
                 o[order_form.get('배송비')] = 0;
             } else {
-                o[order_form.get('배송비')] = p[4];
+                o[order_form.get('배송비')] = p.get('상품배송비');
                 total.set(orderId, -1);
             }
         } else {

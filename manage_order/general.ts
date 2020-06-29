@@ -1,11 +1,11 @@
 var ref = get_Ref();
 
 //스프레드시트 열릴시
-function onOpen() {
-  //ui 생성
+function onOpen(e) {
+    //ui 생성
     SpreadsheetApp.getUi()
     .createMenu('출고관리')
-    .addItem('주문 취합', 'fetch_Order_button')
+    .addItem('주문취합', 'fetch_Order_button')
     .addSeparator()
     .addItem('주문제출', 'submit_Order_button')
     .addSeparator()
@@ -13,11 +13,11 @@ function onOpen() {
 }
 
 async function fetch_Order_button() {
-    const trash_files = await fetch_Order();
+    const archive_files = await fetch_Order();
 
-    trash_files.forEach((f) => {
+    archive_files.forEach((f) => {
         DriveApp.getFolderById(ref.get('업로드/아카이브')).addFile(f);
-    f.getParents().next().removeFile(f);
+        f.getParents().next().removeFile(f);
     });
 
     SpreadsheetApp.getUi().alert('주문 취합이 완료되었습니다.\n에러를 확인해주세요');

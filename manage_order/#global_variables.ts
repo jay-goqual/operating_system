@@ -23,13 +23,17 @@ function find_Ref(key: string) {
 function get_Client() {
     //const table: Array<Array<string>> = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('이메일').getDataRange().setNumberFormat('@').getValues();
     const table: Array<Array<string>> = SpreadsheetApp.openById(ref.get('업체관리')).getSheetByName('업체DB').getDataRange().getValues();
-    let email_address: Map<string, Array<string>> = new Map();
+    let client: Map<string, Map<string, string>> = new Map();
 
     table.forEach((t) => {
-        email_address.set(t[0], [t[0], t[1], t[2], t[3], t[13]]);
+        let temp: Map<string, string> = new Map();
+        t.forEach((x, i) => {
+            temp.set(table[0][i], x);
+        })
+        client.set(t[0], temp);
     });
 
-    return email_address;
+    return client;
 }
 
 //[전역]변환양식 가져오기
@@ -50,10 +54,14 @@ function get_Fetch_form() {
 //[전역]상품 가져오기
 function get_Product() {
     const table: Array<Array<string>> = SpreadsheetApp.openById(ref.get('상품관리')).getSheetByName('상품DB').getDataRange().getValues();
-    let product: Map<string, Array<string>> = new Map();
+    let product: Map<string, Map<string, string>> = new Map();
 
     table.forEach((t) => {
-        product.set(t[0], [t[1], t[2], t[4], t[9], t[10]]);
+        let temp: Map<string, string> = new Map();
+        t.forEach((x, i) => {
+            temp.set(table[0][i], x);
+        })
+        product.set(t[0], temp);
     });
 
     return product;

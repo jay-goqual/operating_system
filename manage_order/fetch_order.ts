@@ -9,33 +9,34 @@ async function fetch_Order() {
     //@ts-ignore
     const files: any = DriveApp.getFolderById(ref.get('업로드')).getFilesByType(MimeType.GOOGLE_SHEETS);
     const target_sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('에러확인');
-    const trash_files = new Array();
+    const archive_files = new Array();
 
     while (files.hasNext()){
         let file = files.next();
         let separator = file.getName().split('_');
         let client_info = client.get(separator[1]);
-        if (fetch_form.get(client_info[4])) {
+        let client_form = client_info.get('업로드양식');
+        if (fetch_form.get(client_form)) {
             let input_data: Array<Array<string>>;
-            if (client_info[4] == '스마트스토어') {
+            if (client_form == '스마트스토어') {
                 if (SpreadsheetApp.openById(file.getId()).getSheets()[0].getRange(1, 1).getValue().length > 10) {
                     SpreadsheetApp.openById(file.getId()).getSheets()[0].deleteRow(1);
                 }
             }
-            if (client_info[4] == '천삼백케이') {
+            if (client_form == '천삼백케이') {
                 if (SpreadsheetApp.openById(file.getId()).getSheets()[0].getRange(1, 1).getValue() == '') {
                     SpreadsheetApp.openById(file.getId()).getSheets()[0].deleteRow(1);
                 }
             }
             await set_Format(file.getId(), '@');
-            input_data = await fetch_Data(file.getId(), fetch_form.get(client_info[4]), client_info);
+            input_data = await fetch_Data(file.getId(), fetch_form.get(client_form), client_info);
             target_sheet.insertRowsAfter(1, input_data.length);
             target_sheet.getRange(2, 1, input_data.length, input_data[0].length).setNumberFormat('@').setValues(input_data);
         }
-        trash_files.push(file);
+        archive_files.push(file);
     }
 
-    return trash_files;
+    return archive_files;
 }
 
 async function set_Format(id: string, format: string) {
@@ -43,7 +44,7 @@ async function set_Format(id: string, format: string) {
 }
 
 //각 시트에서 주문현황/에러확인으로 데이터 옮기기
-async function fetch_Data(file_id: string, fetch_form: Array<string>, client_info: Array<string>) {
+async function fetch_Data(file_id: string, fetch_form: Array<string>, client_info: Map<string, string>) {
 
     //데이터 가져오기
     const orig_data = SpreadsheetApp.openById(file_id).getDataRange().getValues();
@@ -65,8 +66,8 @@ async function fetch_Data(file_id: string, fetch_form: Array<string>, client_inf
         }
         input_data[index] = new Array();
         input_data[index].push(Utilities.formatDate(new Date(), 'GMT+9', 'yyyy/MM/dd HH:mm'));
-        input_data[index].push(client_info[0]);
-        input_data[index].push(client_info[1]);
+        input_data[index].push(client_info.get('셀러명'));
+        input_data[index].push(client_info.get('셀러코드'));
 
         fetch_form.forEach((f: string, id: number) => {
             let column = form_index[id + 1];
