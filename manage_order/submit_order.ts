@@ -19,11 +19,11 @@ async function submit_Order() {
 
     if (submit_table.length > 0) {
         target_sheet.insertRowsAfter(1, submit_table.length);
-        target_sheet.getRange(2, 1, submit_table.length, submit_table[0].length).setNumberFormat('@').setValues(submit_table);
+        target_sheet.getRange(2, 1, submit_table.length, submit_table[0].length).setValues(submit_table);
         error_sheet.deleteRows(2, error_sheet.getLastRow() - 1);
         if (error_table.length > 0) {
             error_sheet.insertRowsAfter(1, error_table.length);
-            error_sheet.getRange(2, 1, error_table.length, error_table[0].length).setNumberFormat('@').setValues(error_table);
+            error_sheet.getRange(2, 1, error_table.length, error_table[0].length).setValues(error_table);
         }
     }
 }
