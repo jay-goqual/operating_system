@@ -1,6 +1,7 @@
 var ref = get_Ref();
 var order_form = get_Order_form();
 var delivery = get_Delivery();
+var client = get_Client();
 
 async function submit_Order() {
     const error_sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('에러확인');
@@ -8,27 +9,42 @@ async function submit_Order() {
     const table = error_sheet.getDataRange().getValues();
     table.splice(0, 1);
     let submit_table = new Array();
-    let error_table = new Array();
+    //let error_table = new Array();
+    let count = 0;
     table.forEach((t) => {
         if (t[order_form.get('에러확인')] == true) {
             submit_table.push(t);
         } else {
-            error_table.push(t);
+            count++;
         }
     });
 
     if (submit_table.length > 0) {
         target_sheet.insertRowsAfter(1, submit_table.length);
         target_sheet.getRange(2, 1, submit_table.length, submit_table[0].length).setValues(submit_table);
-        error_sheet.deleteRows(2, error_sheet.getLastRow() - 1);
-        if (error_table.length > 0) {
-            error_sheet.insertRowsAfter(1, error_table.length);
-            error_sheet.getRange(2, 1, error_table.length, error_table[0].length).setValues(error_table);
-        }
+        error_sheet.sort(order_form.get('에러확인') + 1);
+        error_sheet.deleteRows(count + 2, submit_table.length);
     }
 }
 
-async function modify_Error() {
+async function catch_Error(index, order: Array<any>, id_list: Array<Array<any>>) {
+    order[order_form.get('에러확인')] = true;
+
+    if (id_list.filter(x => x[order_form.get('상품주문번호')] == order[order_form.get('상품주문번호')]).length > 1) {
+        SpreadsheetApp.getActiveSpreadsheet().getSheetByName('에러확인').getRange(index + 2, order_form.get('상품주문번호') + 1).setBackground('#f4cccc');
+        order[order_form.get('에러확인')] = false;
+    }
+
+    const check: Array<string> = ['셀러명', '주문번호', '상품주문번호', '상품코드', '수량', '주문자', '주문자연락처', '수령인', '수령인연락처', '주소', '우편번호', '상품명', '출고채널', '택배사', '판매액', '배송비', '수수료'];
+    check.forEach((c) => {
+        // if (!order[order_form.get(c)] && order[order_form.get(c)] != 0) {
+        if (order[order_form.get(c)] === '') {
+            order[order_form.get('에러확인')] = false;
+            SpreadsheetApp.getActiveSpreadsheet().getSheetByName('에러확인').getRange(index + 2, order_form.get(c) + 1).setBackground('#f4cccc');
+        }
+    });
+
+    return order;
 }
 
 async function fetch_Additional_info() {
@@ -43,6 +59,9 @@ async function fetch_Additional_info() {
     let total: Map<string, number> = new Map();
 
     order.map((o) => {
+        o[order_form.get('접수일')] = Utilities.formatDate(new Date(), 'GMT+9', 'yyyy/MM/dd HH:mm');
+        o[order_form.get('셀러코드')] = client.get(o[order_form.get('셀러명')]).get('셀러코드');
+
         let code = order_form.get('상품코드');
         let p = productInfo.get(o[code]);
         if (p) {
@@ -50,23 +69,36 @@ async function fetch_Additional_info() {
             o[order_form.get('출고채널')] = p.get('출고채널');
             o[order_form.get('택배사')] = delivery.get(p.get('출고채널'));
             o[order_form.get('판매액')] = Number(p.get('판매가')) * o[order_form.get('수량')];
+
+            //수수료구하기
+            let rate: number;
+            let client_info = client.get(o[order_form.get('셀러명')]);
+            if (client_info.get('공급방식') == '고정수수료') {
+                rate = Number(client_info.get('고정수수료율'));
+            } else if (client_info.get('공급방식') == '가산수수료') {
+                rate = Number(p.get('상품수수료율')) + Number(client_info.get('가산수수료율'));
+            } else {
+                rate = Number(client_info.get('고정수수료율'));
+            }
+
+            console.log(rate);
+
+            if (p.get(o[order_form.get('셀러코드')])) {
+                o[order_form.get('수수료')] = o[order_form.get('판매액')] - (Number(p.get(o[order_form.get('셀러코드')])) * o[order_form.get('수량')]);
+            } else {
+                o[order_form.get('수수료')] = Math.floor((Number(p.get('판매가')) * rate) / 10) * 10 * o[order_form.get('수량')];
+            }
+
             if (total.has(o[order_form.get('주문번호')])) {
                 total.set(o[order_form.get('주문번호')], total.get(o[order_form.get('주문번호')]) + o[order_form.get('판매액')]);
             } else {
                 total.set(o[order_form.get('주문번호')], o[order_form.get('판매액')]);
             }
-            o[order_form.get('에러확인')] = true;
-        } else {
-            o[order_form.get('상품명')] = `error`;
-            o[order_form.get('출고채널')] = `error`;
-            o[order_form.get('택배사')] = `error`;
-            o[order_form.get('판매액')] = `error`;
-            o[order_form.get('에러확인')] = false;
         }
         return o;
     });
 
-    order.map((o) => {
+    order.map(async (o, i) => {
 
         //배송비 구하기
         let orderId: string = o[order_form.get('주문번호')];
@@ -80,8 +112,6 @@ async function fetch_Additional_info() {
                 o[order_form.get('배송비')] = p.get('상품배송비');
                 total.set(orderId, -1);
             }
-        } else {
-            o[order_form.get('배송비')] = 'error';
         }
 
         //결제일 양식 통일 및 변경
@@ -105,7 +135,9 @@ async function fetch_Additional_info() {
             o[date] = new Date(o[date]);
         }
         o[date] = Utilities.formatDate(o[date], 'GMT+9', 'yyyy/MM/dd HH:mm');
-
+        
+        o = await catch_Error(i, o, order);
+        
         return o;
     });
 

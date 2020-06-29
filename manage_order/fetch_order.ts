@@ -33,7 +33,8 @@ async function fetch_Order() {
             target_sheet.insertRowsAfter(1, input_data.length);
             target_sheet.getRange(2, 1, input_data.length, input_data[0].length).setNumberFormat('@').setValues(input_data);
         }
-        archive_files.push(file);
+        DriveApp.getFolderById(ref.get('업로드/아카이브')).addFile(file);
+        file.getParents().next().removeFile(file);
     }
 
     return archive_files;
@@ -65,9 +66,9 @@ async function fetch_Data(file_id: string, fetch_form: Array<string>, client_inf
             return;
         }
         input_data[index] = new Array();
-        input_data[index].push(Utilities.formatDate(new Date(), 'GMT+9', 'yyyy/MM/dd HH:mm'));
-        input_data[index].push(client_info.get('셀러명'));
-        input_data[index].push(client_info.get('셀러코드'));
+        // input_data[index].push(Utilities.formatDate(new Date(), 'GMT+9', 'yyyy/MM/dd HH:mm'));
+        input_data[index][order_form.get('셀러명')] = client_info.get('셀러명');
+        // input_data[index].push(client_info.get('셀러코드'));
 
         fetch_form.forEach((f: string, id: number) => {
             let column = form_index[id + 1];

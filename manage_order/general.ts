@@ -9,6 +9,7 @@ function onOpen(e) {
     .addSeparator()
     .addItem('주문제출', 'submit_Order_button')
     .addSeparator()
+    .addItem('출고지시', 'download_order')
     .addToUi();
 }
 

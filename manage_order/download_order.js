@@ -1,4 +1,5 @@
 var order_form = get_Order_form();
+var ref = get_Ref();
 
 async function download_order() {
     const ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -31,12 +32,14 @@ async function download_order() {
     //const sheet = target.getSheets();
     let source = new String();
     channel.forEach((c) => {
-        let url = `https:\/\/docs.google.com\/spreadsheets\/d\/${ss.getId()}\/export?gid=${c.getSheetId()}&access_token=${ScriptApp.getOAuthToken()}`;
-        source += `<a href="${url}" target="_blank">${c.getSheetName()}<\/a><\/br>`;
+        const url = `https:\/\/docs.google.com\/spreadsheets\/d\/${ss.getId()}\/export?gid=${c.getSheetId()}`;
+        const response = UrlFetchApp.fetch(url, {headers: {Authorization: `Bearer ${ScriptApp.getOAuthToken()}`}});
+        const convert_url = DriveApp.getFolderById(ref.get('다운로드/아카이브')).createFile(response.getBlob().setName(`${Utilities.formatDate(new Date(), 'GMT+9', 'MMddHHmm')}_${c.getSheetName()}_출고지시.xlsx`)).getDownloadUrl();
+        source += `<a href="${convert_url}" target="_blank">${c.getSheetName()}<\/a><\/br>`;
     });
     const html = HtmlService.createHtmlOutput(source);
 
     SpreadsheetApp.getUi().showModalDialog(html, '오른쪽 클릭 후 [새 탭에서 열기] 클릭');
 
-    ss.getSheetByName('주문현황').getRange(2, order_form.get('출고지시'), ss.getSheetByName('주문현황').getLastRow(), 1).setValue(true);
+    ss.getSheetByName('주문현황').getRange(2, order_form.get('출고지시') + 1, channel[0].getLastRow() + channel[1].getLastRow() - 2, 1).setValue(Utilities.formatDate(new Date(), 'GMT+9', 'HH:mm'));
 }
