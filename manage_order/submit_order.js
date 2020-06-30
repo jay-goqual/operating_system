@@ -8,22 +8,32 @@ async function submit_Order() {
     const target_sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('주문현황');
     const table = error_sheet.getDataRange().getValues();
     table.splice(0, 1);
-    let submit_table = new Array();
-    //let error_table = new Array();
+    let submit_table = new Map();
+    let total_table = new Array();
+    let error_table = new Array();
+
     let count = 0;
     table.forEach((t) => {
         if (t[order_form.get('에러확인')] == true) {
-            submit_table.push(t);
+            submit_table.set(t[order_form.get('출고채널')], submit_table.get(t[order_form.get('출고채널')]).push(t));
+            total_table[t[order_form.get('출고채널')]].push(t);
         } else {
             count++;
+            error_table.push(t);
         }
     });
 
-    if (submit_table.length > 0) {
-        target_sheet.insertRowsAfter(1, submit_table.length);
-        target_sheet.getRange(2, 1, submit_table.length, submit_table[0].length).setValues(submit_table);
+    submit_table.forEach((t, i) => {
+        let target = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(submit_table.keys()[i]);
+        target.insertRowsAfter(1, t.length);
+        target.getRange(2, 1, t.length, t[0].length).setValues(t);
+    });
+
+    if (total_table.length > 0) {
+        target_sheet.insertRowsAfter(1, total_table.length);
+        target_sheet.getRange(2, 1, total_table.length, total_table[0].length).setValues(total_table);
         error_sheet.sort(order_form.get('에러확인') + 1);
-        error_sheet.deleteRows(count + 2, submit_table.length);
+        error_sheet.deleteRows(count + 2, total_table.length);
     }
 }
 

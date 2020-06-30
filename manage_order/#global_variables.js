@@ -1,5 +1,5 @@
 //ref 전역선언
-var ref = get_Ref();
+// var ref = get_Ref();
 
 //[전역]레퍼런스(id) 가져오기
 function get_Ref() {

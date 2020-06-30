@@ -44,4 +44,8 @@ async function download_order() {
     if (channel[0].getLastRow() + channel[1].getLastRow() - 2 > 0) {
         ss.getSheetByName('주문현황').getRange(2, order_form.get('출고지시') + 1, channel[0].getLastRow() + channel[1].getLastRow() - 2, 1).setValue(Utilities.formatDate(new Date(), 'GMT+9', 'HH:mm'));
     }
+
+    channel.forEach((c) => {
+        c.deleteRows(2, c.getLastRow() - 1);
+    })
 }

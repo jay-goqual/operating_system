@@ -23,10 +23,16 @@ async function change_type() {
             let new_id = await insert_file(props, blob);
             let new_file = DriveApp.getFileById(new_id);
 
+            //주문일 경우
             if (client.has(new_file.getName().split('_')[1])) {
                 await fetch_Order(new_file);
             }
-        }
+
+            //송장일 경우
+            if (new_file.getName().indexOf('ㅇㅇㅇㅇ') != -1) {
+                await fetch_Invoice(new_file);
+            }
+        }   
     }
 }
 
