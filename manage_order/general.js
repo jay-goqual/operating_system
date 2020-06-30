@@ -14,13 +14,7 @@ function onOpen(e) {
 }
 
 async function fetch_Order_button() {
-    const archive_files = await fetch_Order();
-
-    archive_files.forEach((f) => {
-        DriveApp.getFolderById(ref.get('업로드/아카이브')).addFile(f);
-        f.getParents().next().removeFile(f);
-    });
-
+    await fetch_All_order();
     SpreadsheetApp.getUi().alert('주문 취합이 완료되었습니다.\n에러를 확인해주세요');
 }
 

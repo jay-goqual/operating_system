@@ -27,15 +27,16 @@ async function submit_Order() {
     }
 }
 
-async function catch_Error(index, order: Array<any>, id_list: Array<Array<any>>) {
+async function catch_Error(index, order, order_list, num) {
     order[order_form.get('에러확인')] = true;
 
-    if (id_list.filter(x => x[order_form.get('상품주문번호')] == order[order_form.get('상품주문번호')]).length > 1) {
-        SpreadsheetApp.getActiveSpreadsheet().getSheetByName('에러확인').getRange(index + 2, order_form.get('상품주문번호') + 1).setBackground('#f4cccc');
-        order[order_form.get('에러확인')] = false;
+    if (order_list.filter(x => x[order_form.get('상품주문번호')].indexOf(order[order_form.get('상품주문번호')]) != -1).length > 1) {
+        order[order_form.get('상품주문번호')] = `${order[order_form.get('상품주문번호')]}-${Utilities.formatString('%02d', num)}`;
+        // SpreadsheetApp.getActiveSpreadsheet().getSheetByName('에러확인').getRange(index + 2, order_form.get('상품주문번호') + 1).setBackground('#f4cccc');
+        //order[order_form.get('에러확인')] = false;
     }
 
-    const check: Array<string> = ['셀러명', '주문번호', '상품주문번호', '상품코드', '수량', '주문자', '주문자연락처', '수령인', '수령인연락처', '주소', '우편번호', '상품명', '출고채널', '택배사', '판매액', '배송비', '수수료'];
+    const check = ['셀러명', '주문번호', '상품주문번호', '상품코드', '수량', '주문자', '주문자연락처', '수령인', '수령인연락처', '주소', '우편번호', '상품명', '출고채널', '택배사', '판매액', '배송비', '수수료'];
     check.forEach((c) => {
         // if (!order[order_form.get(c)] && order[order_form.get(c)] != 0) {
         if (order[order_form.get(c)] === '') {
@@ -56,7 +57,7 @@ async function fetch_Additional_info() {
     const order = sheet.getDataRange().getValues();
     order.splice(0, 1);
 
-    let total: Map<string, number> = new Map();
+    let total = new Map();
 
     order.map((o) => {
         o[order_form.get('접수일')] = Utilities.formatDate(new Date(), 'GMT+9', 'yyyy/MM/dd HH:mm');
@@ -71,7 +72,7 @@ async function fetch_Additional_info() {
             o[order_form.get('판매액')] = Number(p.get('판매가')) * o[order_form.get('수량')];
 
             //수수료구하기
-            let rate: number;
+            let rate;
             let client_info = client.get(o[order_form.get('셀러명')]);
             if (client_info.get('공급방식') == '고정수수료') {
                 rate = Number(client_info.get('고정수수료율'));
@@ -98,10 +99,12 @@ async function fetch_Additional_info() {
         return o;
     });
 
+    let num = 1;
+
     order.map(async (o, i) => {
 
         //배송비 구하기
-        let orderId: string = o[order_form.get('주문번호')];
+        let orderId = o[order_form.get('주문번호')];
         let code = o[order_form.get('상품코드')];
         let t = total.get(orderId);
         let p = productInfo.get(code);
@@ -117,7 +120,7 @@ async function fetch_Additional_info() {
         //결제일 양식 통일 및 변경
         let date = order_form.get('결제일');
         if (!o[date]) {
-            let assume: Date;
+            let assume;
             if (orderId[0] == 'N') {
                 assume = new Date(orderId.substring(1, 5) + '-' + orderId.substring(5, 7) + '-' + orderId.substring(7, 9) + ' 00:00');
             } else {
@@ -135,8 +138,16 @@ async function fetch_Additional_info() {
             o[date] = new Date(o[date]);
         }
         o[date] = Utilities.formatDate(o[date], 'GMT+9', 'yyyy/MM/dd HH:mm');
+
+        if (i > 1) {
+            if (o[order_form.get('주문번호')] == order[i - 1][order_form.get('주문번호')]) {
+                num++;
+            } else {
+                num = 1;
+            }
+        }
         
-        o = await catch_Error(i, o, order);
+        o = await catch_Error(i, o, order, num)
         
         return o;
     });

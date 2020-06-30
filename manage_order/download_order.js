@@ -41,5 +41,7 @@ async function download_order() {
 
     SpreadsheetApp.getUi().showModalDialog(html, '오른쪽 클릭 후 [새 탭에서 열기] 클릭');
 
-    ss.getSheetByName('주문현황').getRange(2, order_form.get('출고지시') + 1, channel[0].getLastRow() + channel[1].getLastRow() - 2, 1).setValue(Utilities.formatDate(new Date(), 'GMT+9', 'HH:mm'));
+    if (channel[0].getLastRow() + channel[1].getLastRow() - 2 > 0) {
+        ss.getSheetByName('주문현황').getRange(2, order_form.get('출고지시') + 1, channel[0].getLastRow() + channel[1].getLastRow() - 2, 1).setValue(Utilities.formatDate(new Date(), 'GMT+9', 'HH:mm'));
+    }
 }
