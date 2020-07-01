@@ -15,16 +15,21 @@ async function submit_Order() {
     let count = 0;
     table.forEach((t) => {
         if (t[order_form.get('에러확인')] == true) {
-            submit_table.set(t[order_form.get('출고채널')], submit_table.get(t[order_form.get('출고채널')]).push(t));
-            total_table[t[order_form.get('출고채널')]].push(t);
+            if (!submit_table.get(t[order_form.get('출고채널')])) {
+                submit_table.set(t[order_form.get('출고채널')], new Array());
+            }
+            let temp = submit_table.get(t[order_form.get('출고채널')]);
+            temp.push(t);
+            submit_table.set(t[order_form.get('출고채널')], temp);
+            total_table.push(t);
         } else {
             count++;
             error_table.push(t);
         }
     });
 
-    submit_table.forEach((t, i) => {
-        let target = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(submit_table.keys()[i]);
+    submit_table.forEach((t, k) => {
+        let target = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(k);
         target.insertRowsAfter(1, t.length);
         target.getRange(2, 1, t.length, t[0].length).setValues(t);
     });
@@ -42,7 +47,7 @@ async function catch_Error(index, order, order_list, num) {
 
     if (order_list.filter(x => x[order_form.get('상품주문번호')].indexOf(order[order_form.get('상품주문번호')]) != -1).length > 1) {
         order[order_form.get('상품주문번호')] = `${order[order_form.get('상품주문번호')]}-${Utilities.formatString('%02d', num)}`;
-        // SpreadsheetApp.getActiveSpreadsheet().getSheetByName('에러확인').getRange(index + 2, order_form.get('상품주문번호') + 1).setBackground('#f4cccc');
+        //SpreadsheetApp.getActiveSpreadsheet().getSheetByName('에러확인').getRange(index + 2, order_form.get('상품주문번호') + 1).setBackground('#f4cccc');
         //order[order_form.get('에러확인')] = false;
     }
 
@@ -91,8 +96,6 @@ async function fetch_Additional_info() {
             } else {
                 rate = Number(client_info.get('고정수수료율'));
             }
-
-            console.log(rate);
 
             if (p.get(o[order_form.get('셀러코드')])) {
                 o[order_form.get('수수료')] = o[order_form.get('판매액')] - (Number(p.get(o[order_form.get('셀러코드')])) * o[order_form.get('수량')]);

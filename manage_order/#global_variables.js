@@ -45,7 +45,7 @@ function get_Fetch_form() {
     let fetch_form = new Map();
 
     table.forEach((t) => {
-        fetch_form.set(t[0], t.splice(1, t.length));
+        fetch_form.set(t[0], t.splice(1, t.length - 1));
     });
 
     return fetch_form;
@@ -91,4 +91,15 @@ function get_Delivery() {
     });
 
     return delivery;
+}
+
+function get_Invoice_form() {
+    const table = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('전달양식').getDataRange().getValues();
+    let invoice_form = new Map();
+
+    table.forEach((t) => {
+        invoice_form.set(t[0], t.splice(1, t.length - 1));
+    });
+
+    return invoice_form;
 }
