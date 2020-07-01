@@ -1,7 +1,7 @@
 var ref = get_Ref();
 var client = get_Client();
 
-async function change_type() {
+async function check_Upload() {
     const folder = DriveApp.getFolderById(ref.get('업로드'));
     const files = folder.getFiles();
 
@@ -29,7 +29,7 @@ async function change_type() {
             }
 
             //송장일 경우
-            if (new_file.getName().indexOf('ㅇㅇㅇㅇ') != -1) {
+            if (new_file.getName().indexOf('배송출고현황') != -1 || new_file.getName().indexOf('작업 단위 목록') != -1) {
                 await fetch_Invoice(new_file);
             }
         }   

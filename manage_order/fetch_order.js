@@ -3,10 +3,6 @@ var ref = get_Ref();
 var order_form = get_Order_form();
 var client = get_Client();
 
-async function fetch_All_order() {
-    change_type();
-}
-
 //[출고요청/업로드]폴더 >> 주문현황/에러확인으로 데이터 옮김
 async function fetch_Order(file) {
     //const fetch_form: Map<string, Array<string>> = get_Form();

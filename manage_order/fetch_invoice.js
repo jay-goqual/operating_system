@@ -2,6 +2,7 @@ var ref = get_Ref();
 var order_form = get_Order_form();
 
 async function fetch_Invoice(file) {
+
     const invoice_data = SpreadsheetApp.openById(file.getId()).getDataRange().getValues();
     const order_data = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('주문현황').getDataRange().getValues();
 
@@ -11,13 +12,20 @@ async function fetch_Invoice(file) {
     });
 
     invoice_data.splice(0, 1);
-    order_data.splice(0, 1);
 
     order_data.map((o) => {
-        let find = invoice_data.filter(d => 
-            d[invoice_form.get('주문번호')] == o[order_form.get('상품주문번호')]
-        );
-        o[order_form.get('송장번호')] = find[invoice_form('송장번호')];
+        if (o[order_form.get('송장번호')]) {
+            return o;
+        }
+        let find = invoice_data.filter(d => d[invoice_form.get('주문번호')] == o[order_form.get('상품주문번호')]);
+        if (find.length > 0) {
+            o[order_form.get('송장번호')] = find[0][invoice_form.get('송장번호')];
+        }
         return o;
     });
+
+    SpreadsheetApp.getActiveSpreadsheet().getSheetByName('주문현황').getDataRange().setValues(order_data);
+
+    DriveApp.getFolderById(ref.get('업로드/아카이브')).addFile(file);
+    file.getParents().next().removeFile(file);
 }
