@@ -80,12 +80,6 @@ async function fetch_Data(file_id, form, client_info) {
                 return;
             }
 
-            if (column !== '주소' && column !== '배송메세지' && column !== '옵션정보' && column !== '결제일') {
-                if (o[i - 1]) {
-                    o[i - 1] = o[i - 1].split(' ').join('');
-                }
-            }
-
             //배송메세지 \n 삭제
             if (column === '배송메세지') {
                 input_data[index][j] = o[i - 1].split('\n').join('');
@@ -117,10 +111,17 @@ async function fetch_Data(file_id, form, client_info) {
                     if (!o[i - 1]) {
                         return;
                     }
+
+                    if (column !== '주소' && column !== '배송메세지' && column !== '옵션정보' && column !== '결제일') {
+                        if (o[i - 1]) {
+                            o[i - 1] = o[i - 1].split(' ').join('');
+                        }
+                    }
+        
                     if (k == 0) {
-                        temp += o[i - 1].split(' ').join('');
+                        temp += o[i - 1];
                     } else {
-                        temp += '-' + o[i - 1].split(' ').join('');
+                        temp += '-' + o[i - 1];
                     }
                 });
                 if (temp != '' && temp != '-') {

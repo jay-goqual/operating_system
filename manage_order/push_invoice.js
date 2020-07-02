@@ -63,9 +63,6 @@ async function push_Invoice() {
         target.getSheetByName(k).insertRowsAfter(row - 1, t.length);
         target.getSheetByName(k).getRange(row, 1, t.length, t[0].length).setNumberFormat('@').setValues(t);
 
-        if (k == '엔분의일') {
-            target.getSheetByName(k).setName('발송처리');
-        }
     });
 }
 
@@ -80,7 +77,7 @@ async function send_Invoice() {
         const response = UrlFetchApp.fetch(url, {headers: {Authorization: `Bearer ${ScriptApp.getOAuthToken()}`}});
         let x = DriveApp.getFolderById(ref.get('다운로드/아카이브')).createFile(response.getBlob().setName(`${Utilities.formatDate(new Date(), 'GMT+9', 'yyMMdd')}_출고완료_${c.getName()}.xlsx`));
 
-        if (client.get(c.getName()).get('출고이메일')) {
+        if (client.get(c.getName()).has('출고이메일')) {
             MailApp.sendEmail({
                 to: client.get(c.getName()).get('출고이메일'),
                 cc: 'service@goqual.com',
@@ -91,6 +88,9 @@ async function send_Invoice() {
             });
         } else {
             source += `<a href="${url}" target="_blank">${c.getName()}<\/a><\/br>`;
+            if (c.getName() == '엔분의일') {
+                c.setName('발송처리');
+            }
         }
     })
 

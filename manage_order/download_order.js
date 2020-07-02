@@ -30,22 +30,30 @@ async function download_Order() {
 
     // const res = UrlFetchApp.fetch(url, {headers: {Authorization: 'Bearer ' + ScriptApp.getOAuthToken()}});
     //const sheet = target.getSheets();
-    let source = new String();
+    let source = '';
     channel.forEach((c) => {
-        const url = `https:\/\/docs.google.com\/spreadsheets\/d\/${ss.getId()}\/export?gid=${c.getSheetId()}`;
-        const response = UrlFetchApp.fetch(url, {headers: {Authorization: `Bearer ${ScriptApp.getOAuthToken()}`}});
-        const convert_url = DriveApp.getFolderById(ref.get('다운로드/아카이브')).createFile(response.getBlob().setName(`${Utilities.formatDate(new Date(), 'GMT+9', 'MMddHHmm')}_${c.getSheetName()}_출고지시.xlsx`)).getDownloadUrl();
-        source += `<a href="${convert_url}" target="_blank">${c.getSheetName()}<\/a><\/br>`;
+        if (c.getLastRow() > 1) {
+            const url = `https:\/\/docs.google.com\/spreadsheets\/d\/${ss.getId()}\/export?gid=${c.getSheetId()}`;
+            const response = UrlFetchApp.fetch(url, {headers: {Authorization: `Bearer ${ScriptApp.getOAuthToken()}`}});
+            const convert_url = DriveApp.getFolderById(ref.get('다운로드/아카이브')).createFile(response.getBlob().setName(`${Utilities.formatDate(new Date(), 'GMT+9', 'MMddHHmm')}_${c.getSheetName()}_출고지시.xlsx`)).getDownloadUrl();
+            source += `<a href="${convert_url}" target="_blank">${c.getSheetName()}<\/a><\/br>`;
+        }
     });
-    const html = HtmlService.createHtmlOutput(source);
 
-    SpreadsheetApp.getUi().showModalDialog(html, '오른쪽 클릭 후 [새 탭에서 열기] 클릭');
+    if (source != '') {
+        const html = HtmlService.createHtmlOutput(source);
+        SpreadsheetApp.getUi().showModalDialog(html, '오른쪽 클릭 후 [새 탭에서 열기] 클릭');
+    } else {
+        SpreadsheetApp.getUi().alert(`주문이 없습니다.`);
+    }
 
     if (channel[0].getLastRow() + channel[1].getLastRow() - 2 > 0) {
         ss.getSheetByName('주문현황').getRange(2, order_form.get('출고지시') + 1, channel[0].getLastRow() + channel[1].getLastRow() - 2, 1).setValue(Utilities.formatDate(new Date(), 'GMT+9', 'HH:mm'));
     }
 
     channel.forEach((c) => {
-        c.deleteRows(2, c.getLastRow() - 1);
+        if (c.getLastRow() > 1) {
+            c.deleteRows(2, c.getLastRow() - 1);
+        }
     })
 }

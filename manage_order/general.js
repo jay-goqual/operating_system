@@ -29,6 +29,19 @@ async function fetch_Invcoie_button() {
 
 async function push_Invoice_button() {
     await push_Invoice();
-    Utilities.sleep(5000);
+    Utilities.sleep(10000);
     await send_Invoice();
+}
+
+async function delete_Archive() {
+    let key = ['다운로드/아카이브', '업로드/아카이브'];
+    key.forEach((k) => {
+        let folder = DriveApp.getFolderById(ref.get(k));
+        let files = folder.getFiles();
+
+        while(files.hasNext()) {
+            let file = files.next();
+            Drive.Files.remove(file.getId());
+        }
+    })
 }
