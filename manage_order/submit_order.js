@@ -81,10 +81,11 @@ async function fetch_Additional_info() {
         let code = order_form.get('상품코드');
         let p = productInfo.get(o[code]);
         if (p) {
+            if (p)
             o[order_form.get('상품명')] = p.get('상품명');
             o[order_form.get('출고채널')] = p.get('출고채널');
             o[order_form.get('택배사')] = delivery.get(p.get('출고채널'));
-            o[order_form.get('판매액')] = Number(p.get('판매가')) * o[order_form.get('수량')];
+            o[order_form.get('판매액')] = Number(p.get('판매가')) * Number(o[order_form.get('수량')]);
 
             //수수료구하기
             let rate;
@@ -97,8 +98,8 @@ async function fetch_Additional_info() {
                 rate = Number(client_info.get('고정수수료율'));
             }
 
-            if (p.get(o[order_form.get('셀러코드')])) {
-                o[order_form.get('수수료')] = o[order_form.get('판매액')] - (Number(p.get(o[order_form.get('셀러코드')])) * o[order_form.get('수량')]);
+            if (p.get(String(o[order_form.get('셀러코드')]))) {
+                o[order_form.get('수수료')] = o[order_form.get('판매액')] - (Number(p.get(String(o[order_form.get('셀러코드')]))) * o[order_form.get('수량')]);
             } else {
                 o[order_form.get('수수료')] = Math.floor((Number(p.get('판매가')) * rate) / 10) * 10 * o[order_form.get('수량')];
             }

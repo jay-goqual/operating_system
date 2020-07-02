@@ -1,7 +1,7 @@
 var ref = get_Ref();
 
 //스프레드시트 열릴시
-function onOpen(e) {
+function Init() {
     //ui 생성
     SpreadsheetApp.getUi()
     .createMenu('출고관리')
