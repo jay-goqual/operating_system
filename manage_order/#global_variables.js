@@ -45,7 +45,7 @@ function get_Fetch_form() {
     let fetch_form = new Map();
 
     table.forEach((t) => {
-        fetch_form.set(t[0], t.splice(1, t.length));
+        fetch_form.set(t[0], t.splice(1, t.length - 1));
     });
 
     return fetch_form;

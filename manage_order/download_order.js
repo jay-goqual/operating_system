@@ -1,7 +1,7 @@
 var order_form = get_Order_form();
 var ref = get_Ref();
 
-async function download_order() {
+async function download_Order() {
     const ss = SpreadsheetApp.getActiveSpreadsheet();
     const channel = [ss.getSheetByName('굿스코아'), ss.getSheetByName('제이에스비즈')];
     

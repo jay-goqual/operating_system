@@ -45,8 +45,8 @@ async function set_Format(id, format) {
     SpreadsheetApp.openById(id).getDataRange().setNumberFormat(format);
 }
 
-//각 시트에서 주문현황/에러확인으로 데이터 옮기기
-async function fetch_Data(file_id, fetch_form, client_info) {
+//시트에서 주문현황/에러확인으로 데이터 옮기기
+async function fetch_Data(file_id, form, client_info) {
 
     //데이터 가져오기
     const orig_data = SpreadsheetApp.openById(file_id).getDataRange().getValues();
@@ -54,15 +54,15 @@ async function fetch_Data(file_id, fetch_form, client_info) {
 
     //input_data 만들기
     let input_data = new Array();
-    const temp = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('요청양식').getDataRange().getValues();
+    // const temp = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('요청양식').getDataRange().getValues();
 
-    let form_index = new Array();
+    /* let form_index = new Array();
     temp[0].forEach((t, i) => {
         form_index[i] = t;
-    });
+    }); */
 
     orig_data.forEach((o, index) => {
-        let i = convert_Column(fetch_form[0]);
+        let i = convert_Column(form[0]);
         if (!o[i - 1] || o[i - 1] == ' ') {
             return;
         }
@@ -71,8 +71,9 @@ async function fetch_Data(file_id, fetch_form, client_info) {
         input_data[index][order_form.get('셀러명')] = client_info.get('셀러명');
         // input_data[index].push(client_info.get('셀러코드'));
 
-        fetch_form.forEach((f, id) => {
-            let column = form_index[id + 1];
+        form.forEach((f, id) => {
+            let column = fetch_form.get('양식')[id];
+            let i = convert_Column(f);
             let j = order_form.get(column);
             if (f === 'none') {
                 input_data[index][j] = '';
@@ -80,7 +81,6 @@ async function fetch_Data(file_id, fetch_form, client_info) {
             }
 
             if (column !== '주소' && column !== '배송메세지' && column !== '옵션정보' && column !== '결제일') {
-                let i = convert_Column(f);
                 if (o[i - 1]) {
                     o[i - 1] = o[i - 1].split(' ').join('');
                 }
@@ -88,28 +88,18 @@ async function fetch_Data(file_id, fetch_form, client_info) {
 
             //배송메세지 \n 삭제
             if (column === '배송메세지') {
-                let i = convert_Column(f);
                 input_data[index][j] = o[i - 1].split('\n').join('');
                 return;
             }
 
             //우편번호 양식 변경
             if (column === '우편번호') {
-                let i = convert_Column(f);
-                /*
-                if (o[i - 1].indexOf('-') != -1) {
-                input_data[index][j] = o[i - 1];
-                } else {
-                input_data[index][j] = Utilities.formatString('%05d', o[i - 1]);
-                }
-                */
                 input_data[index][j] = Utilities.formatString('%05d', o[i - 1].split('-').join(''));
                 return;
             }
 
             //전화번호 양식변경
             if (column === '주문자연락처' || column === '수령인연락처') {
-                let i = convert_Column(f);
                 if (o[i - 1].indexOf('-') == -1) {
                     input_data[index][j] = o[i - 1];
                 } else {
@@ -124,10 +114,13 @@ async function fetch_Data(file_id, fetch_form, client_info) {
                 let temp = '';
                 plus.forEach((p, k) => {
                     let i = convert_Column(p);
+                    if (!o[i - 1]) {
+                        return;
+                    }
                     if (k == 0) {
-                        temp += o[i - 1];
+                        temp += o[i - 1].split(' ').join('');
                     } else {
-                        temp += '-' + o[i - 1];
+                        temp += '-' + o[i - 1].split(' ').join('');
                     }
                 });
                 if (temp != '' && temp != '-') {
