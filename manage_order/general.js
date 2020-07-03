@@ -10,8 +10,11 @@ function Init() {
     .addItem('출고지시', 'download_Order')
     .addSeparator()
     .addItem('송장입력', 'fetch_Invcoie_button')
-    .addItem('송장전달', 'push_Invoice_button')
+    .addItem('송장추출', 'push_Invoice_button')
+    .addItem('송장전달', 'send_Invoice_button')
     .addToUi();
+
+    add_Trigger();
 }
 
 async function fetch_Order_button() {
@@ -29,7 +32,9 @@ async function fetch_Invcoie_button() {
 
 async function push_Invoice_button() {
     await push_Invoice();
-    Utilities.sleep(10000);
+}
+
+async function send_Invoice_button() {
     await send_Invoice();
 }
 
@@ -44,4 +49,28 @@ async function delete_Archive() {
             Drive.Files.remove(file.getId());
         }
     })
+}
+
+async function add_Trigger() {
+    let triggers = ScriptApp.getProjectTriggers().filter((x) => x.getHandlerFunction() == 'check_Upload');
+
+    if (triggers.length == 0) {
+        ScriptApp.newTrigger('check_Upload')
+        .timeBased()
+        .everyMinutes(5)
+        .create();
+
+        ScriptApp.newTrigger('remove_Trigger')
+        .timeBased()
+        .everyDays()
+        .nearMinute()
+    }
+}
+
+async function remove_Trigger() {
+    let triggers = ScriptApp.getProjectTriggers().filter((x) => x.getHandlerFunction() == 'check_Upload');
+
+    triggers.forEach((t) => {
+        ScriptApp.deleteTrigger(t);
+    });
 }
