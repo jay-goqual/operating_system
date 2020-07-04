@@ -6,10 +6,14 @@ async function archive_Data() {
     const data = data_sheet.getDataRange().getValues();
     data.splice(0, 1);
 
-    let month_file = DriveApp.getFolderById(ref.get('출고DB')).getFilesByName(`${Utilities.formatDate(new Date(), 'GMT+9', 'M')}월`);
+    if (data.length == 0) {
+        return;
+    }
+
+    let month_file = DriveApp.getFolderById(ref.get('출고DB')).getFilesByName(Utilities.formatDate(new Date(), 'GMT+9', 'yy년 MM월'));
     if (!month_file.hasNext()) {
         const source = {
-            title: `${Utilities.formatDate(new Date(), 'GMT+9', 'M')}월`,
+            title: Utilities.formatDate(new Date(), 'GMT+9', 'yy년 MM월'),
             mimeType: MimeType.GOOGLE_SHEETS,
             parents: [{id: ref.get('출고DB')}]
         }
@@ -23,7 +27,6 @@ async function archive_Data() {
     new_sheet.setName(`${Utilities.formatDate(new Date(), 'GMT+9', 'd')}일`);
 
     let check_sheet = month_target.getSheets()[0];
-    console.log(check_sheet.getName());
     if (check_sheet.getName().indexOf('일') == -1) {
         month_target.deleteSheet(check_sheet);
     }

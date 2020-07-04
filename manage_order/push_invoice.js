@@ -5,7 +5,7 @@ var order_form = get_Order_form();
 
 async function push_Invoice() {
     const table = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('주문현황').getDataRange().getValues();
-    const target = SpreadsheetApp.openById(ref.get('송장전달'));
+    const target = SpreadsheetApp.openById(ref.get('송장저장'));
     target.getSheets().forEach((t, i) => {
         if (i > 0) {
             target.deleteSheet(t);
@@ -67,7 +67,7 @@ async function push_Invoice() {
 }
 
 async function send_Invoice() {
-    const ss = SpreadsheetApp.openById(ref.get('송장전달'));
+    const ss = SpreadsheetApp.openById(ref.get('송장저장'));
     const channel = ss.getSheets();
 
     let source = new String();

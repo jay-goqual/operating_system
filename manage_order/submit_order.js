@@ -134,18 +134,17 @@ async function fetch_Additional_info() {
         //결제일 양식 통일 및 변경
         let date = order_form.get('결제일');
         if (!o[date]) {
-            let assume;
+            let n;
             if (orderId[0] == 'N') {
-                assume = new Date(orderId.substring(1, 5) + '-' + orderId.substring(5, 7) + '-' + orderId.substring(7, 9) + ' 00:00');
+                n = 1;
             } else {
-                assume = new Date(orderId.substring(0, 4) + '-' + orderId.substring(4, 6) + '-' + orderId.substring(6, 8) + ' 00:00');
+                n = 0;
             }
+            let assume = new Date(`${orderId.substring(n, n + 4)}-${orderId.substring(n + 4, n + 6)}-${orderId.substring(n + 6, n + 8)} 00:00`);
             let today = new Date(o[order_form.get('접수일')]);
-
-            //@ts-ignore
-            if (Math.abs(assume.getFullYear() - today.getFullYear()) > 3 || isNaN(assume.getFullYear())) {
-                o[date] = today;
-            } else {
+            o[date] = today;
+            let oneDay = 24 * 60 * 60 * 1000;
+            if (Math.round(Math.abs(assume - today) / oneDay) < 180) {
                 o[date] = assume;
             }
         } else {

@@ -52,6 +52,7 @@ async function delete_Archive() {
 }
 
 async function add_Trigger() {
+
     let triggers = ScriptApp.getProjectTriggers().filter((x) => x.getHandlerFunction() == 'check_Upload');
 
     if (triggers.length == 0) {
@@ -59,16 +60,33 @@ async function add_Trigger() {
         .timeBased()
         .everyMinutes(5)
         .create();
+    }
 
+    let d_triggers = ScriptApp.getProjectTriggers().filter((x) => x.getHandlerFunction() == 'delete_Archive');
+
+    if (d_triggers.length == 0) {
+        ScriptApp.newTrigger('delete_Archive')
+        .timeBased()
+        .everyDays(1)
+        .atHour(18)
+        .nearMinute(45)
+        .create();
+    }
+
+    let r_triggers = ScriptApp.getProjectTriggers().filter((x) => x.getHandlerFunction() == 'remove_Trigger');
+
+    if (r_triggers.length == 0) {
         ScriptApp.newTrigger('remove_Trigger')
         .timeBased()
-        .everyDays()
-        .nearMinute()
+        .everyDays(1)
+        .atHour(19)
+        .nearMinute(45)
+        .create();
     }
 }
 
 async function remove_Trigger() {
-    let triggers = ScriptApp.getProjectTriggers().filter((x) => x.getHandlerFunction() == 'check_Upload');
+    let triggers = ScriptApp.getProjectTriggers().filter((x) => x.getHandlerFunction() == 'check_Upload' || x.getHandlerFunction() == 'remove_Trigger' || x.getHandlerFunction() == 'delete_Archive');
 
     triggers.forEach((t) => {
         ScriptApp.deleteTrigger(t);
