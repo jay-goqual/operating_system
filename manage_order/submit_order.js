@@ -7,6 +7,11 @@ async function submit_Order() {
     const error_sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('에러확인');
     const target_sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('주문현황');
     const table = error_sheet.getDataRange().getValues();
+
+    if (table.length == 1) {
+        return;
+    }
+    
     table.splice(0, 1);
     let submit_table = new Map();
     let total_table = new Array();
@@ -70,6 +75,11 @@ async function fetch_Additional_info() {
 
     const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('에러확인');
     const order = sheet.getDataRange().getValues();
+
+    if (order.length == 1) {
+        return;
+    }
+
     order.splice(0, 1);
 
     let total = new Map();

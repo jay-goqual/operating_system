@@ -42,8 +42,8 @@ async function archive_Data() {
         })
     });
     
-    manage_sale.insertRowsAfter(manage_sale.getLastRow(), data.length);
-    manage_sale.getRange(manage_sale.getLastRow() + 1, 1, data.length, sale_form.length).setValues(push_table);
+    manage_sale.insertRowsAfter(1, data.length);
+    manage_sale.getRange(2, 1, data.length, sale_form.length).setValues(push_table);
 
     data_sheet.deleteRows(2, data_sheet.getLastRow() - 1);
 }

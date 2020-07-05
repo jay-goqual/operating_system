@@ -22,7 +22,7 @@ function find_Ref(key) {
 //셀러관리 이후 셀러관리에서 셀러정보 가져오는 것으로 변경
 function get_Client() {
     //const table = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('이메일').getDataRange().setNumberFormat('@').getValues();
-    const table = SpreadsheetApp.openById(ref.get('업체관리')).getSheetByName('업체DB').getDataRange().getValues();
+    const table = SpreadsheetApp.openById(ref.get('셀러관리')).getSheetByName('업체DB').getDataRange().getValues();
     let client = new Map();
 
     table.forEach((t) => {

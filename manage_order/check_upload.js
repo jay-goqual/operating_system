@@ -5,7 +5,7 @@ async function check_Upload() {
     const folder = DriveApp.getFolderById(ref.get('업로드'));
     const files = folder.getFiles();
 
-    let check = false;
+    // let check = false;
     while (files.hasNext()) {
         let file = files.next();
         if (file.getMimeType() == MimeType.MICROSOFT_EXCEL_LEGACY || file.getMimeType() == MimeType.MICROSOFT_EXCEL || file.getMimeType() == MimeType.CSV) {
@@ -27,7 +27,7 @@ async function check_Upload() {
             //주문일 경우
             if (client.has(new_file.getName().split('_')[1])) {
                 await fetch_Order(new_file);
-                check = true;
+                // check = true;
             }
 
             //송장일 경우
@@ -43,10 +43,8 @@ async function check_Upload() {
         }
     }
 
-    if (check) {
-        await fetch_Additional_info();
-        await submit_Order();
-    }
+    await fetch_Additional_info();
+    await submit_Order();
 }
 
 async function insert_File(props, blob) {

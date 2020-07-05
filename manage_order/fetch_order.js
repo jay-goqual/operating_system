@@ -82,7 +82,7 @@ async function fetch_Data(file_id, form, client_info) {
 
             //배송메세지 \n 삭제
             if (column === '배송메세지') {
-                input_data[index][j] = o[i - 1].split('\n').join('');
+                input_data[index][j] = o[i - 1].split('\n').join(' ');
                 return;
             }
 
