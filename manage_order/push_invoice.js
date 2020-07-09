@@ -10,11 +10,15 @@ async function push_Invoice() {
         if (i > 0) {
             target.deleteSheet(t);
         }
-    })
+    });
 
     const push_table = new Map();
     table.map((t) => {
         if (!t[order_form.get('송장번호')] || t[order_form.get('출고일시')]) {
+            return t;
+        }
+
+        if (!client.has(t[order_form.get('셀러명')])) {
             return t;
         }
 
@@ -63,6 +67,9 @@ async function push_Invoice() {
         target.getSheetByName(k).insertRowsAfter(row - 1, t.length);
         target.getSheetByName(k).getRange(row, 1, t.length, t[0].length).setNumberFormat('@').setValues(t);
 
+        if (k == '카카오스토어') {
+            target.getSheetByName(k).getRange(1, 3, target.getSheetByName(k).getLastRow(), 1).clearFormat();
+        }
     });
 }
 
@@ -73,13 +80,17 @@ async function send_Invoice() {
     let source = new String();
 
     channel.forEach((c) => {
+        let name = c.getName();
+        if (c.getName() == '엔분의일') {
+            c.setName('발송처리');
+        }
         const url = `https:\/\/docs.google.com\/spreadsheets\/d\/${ss.getId()}\/export?gid=${c.getSheetId()}`;
         const response = UrlFetchApp.fetch(url, {headers: {Authorization: `Bearer ${ScriptApp.getOAuthToken()}`}});
-        let x = DriveApp.getFolderById(ref.get('다운로드/아카이브')).createFile(response.getBlob().setName(`${Utilities.formatDate(new Date(), 'GMT+9', 'yyMMdd')}_출고완료_${c.getName()}.xlsx`));
+        let x = DriveApp.getFolderById(ref.get('다운로드/아카이브')).createFile(response.getBlob().setName(`${Utilities.formatDate(new Date(), 'GMT+9', 'yyMMdd')}_출고완료_${name}.xlsx`));
 
-        if (client.get(c.getName()).has('출고이메일')) {
+        if (client.get(name).get('출고이메일')) {
             MailApp.sendEmail({
-                to: client.get(c.getName()).get('출고이메일'),
+                to: client.get(name).get('출고이메일'),
                 cc: 'service@goqual.com',
                 subject: `[헤이홈] ${Utilities.formatDate(new Date(), 'GMT+9', 'yyMMdd')}일자 운송장 정보`,
                 htmlBody: '<div dir="ltr">안녕하세요.<br>주식회사 고퀄의 커머스팀입니다.<br><br>금일 주문 건에 대한 운송장 정보 전달드립니다.<br><br>감사합니다 :)</div>',
@@ -87,10 +98,7 @@ async function send_Invoice() {
                 attachments: [x]
             });
         } else {
-            source += `<a href="${url}" target="_blank">${c.getName()}<\/a><\/br>`;
-            if (c.getName() == '엔분의일') {
-                c.setName('발송처리');
-            }
+            source += `<a href="${url}" target="_blank">${name}<\/a><\/br>`;
         }
     })
 

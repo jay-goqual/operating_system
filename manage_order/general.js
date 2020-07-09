@@ -12,13 +12,14 @@ function Init() {
     .addItem('송장입력', 'fetch_Invcoie_button')
     .addItem('송장추출', 'push_Invoice_button')
     .addItem('송장전달', 'send_Invoice_button')
+    .addSeparator()
+    .addItem('출고종료', 'delete_Archive')
     .addToUi();
-
-    add_Trigger();
 }
 
 async function fetch_Order_button() {
     await check_Upload();
+    await fetch_Order_from_sheet();
 }
 
 async function submit_Order_button() {
@@ -51,7 +52,7 @@ async function delete_Archive() {
     })
 }
 
-async function add_Trigger() {
+/* async function add_Trigger() {
 
     let triggers = ScriptApp.getProjectTriggers().filter((x) => x.getHandlerFunction() == 'check_Upload');
 
@@ -83,12 +84,12 @@ async function add_Trigger() {
         .nearMinute(45)
         .create();
     }
-}
+} */
 
-async function remove_Trigger() {
+/* async function remove_Trigger() {
     let triggers = ScriptApp.getProjectTriggers().filter((x) => x.getHandlerFunction() == 'check_Upload' || x.getHandlerFunction() == 'remove_Trigger' || x.getHandlerFunction() == 'delete_Archive');
 
     triggers.forEach((t) => {
         ScriptApp.deleteTrigger(t);
     });
-}
+} */

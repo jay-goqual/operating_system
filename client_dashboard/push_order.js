@@ -29,7 +29,7 @@ async function push_Order() {
                 return d;
             }
 
-            if (d == '') {
+            if (d == '' || d == '-') {
                 order_sheet.getRange(i + 2, j + 1).setBackground('#f4cccc');
                 error[0] = true;
                 error[1] += `[${convert_Column(j + 1)}${i + 2}] 빈 데이터가 있습니다.\n`;
@@ -56,16 +56,24 @@ async function push_Order() {
 
             //우편번호 양식 변경
             if (j == 9) {
-                return Utilities.formatString('%05d', d.split('-').join(''));
+                let temp = d.split('-').join('');
+                if (temp.lenth > 6) {
+                    order_sheet.getRange(i + 2, j + 1).setBackground('#f4cccc');
+                    error[0] = true;
+                    error[1] += `[${convert_Column(j + 1)}${i + 2}] 잘못된 우편번호입니다.\n`;
+                }
+                return Utilities.formatString('%05d', temp);
             }
 
             //전화번호 양식변경
             if (j == 5 || j == 7) {
-                if (d.indexOf('-') == -1) {
-                    return d;
-                } else {
-                    return d.split('-').join('');
+                let temp = d.split('-').join('');
+                if (Number(temp) != temp) {
+                    order_sheet.getRange(i + 2, j + 1).setBackground('#f4cccc');
+                    error[0] = true;
+                    error[1] += `[${convert_Column(j + 1)}${i + 2}] 잘못된 전화번호입니다.\n`;
                 }
+                return temp;
             }
 
             return d;
@@ -78,11 +86,12 @@ async function push_Order() {
         return;
     }
 
-    const target = SpreadsheetApp.openById('1CXXuEY-lf00i8xCMWJT5keCFfHrPsE0MILIIeueTYMA').getSheetByName('에러확인');
+    // const target = SpreadsheetApp.openById('1CXXuEY-lf00i8xCMWJT5keCFfHrPsE0MILIIeueTYMA').getSheetByName('에러확인');
+    const target = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('주문데이터');
 
     target.insertRowsAfter(1, data.length);
-    target.getRange(2, 2, data.length, 1).setValue(SpreadsheetApp.getActiveSpreadsheet().getSheets()[0].getRange(2, 3).getValue());
-    target.getRange(2, 4, data.length, data[0].length).setValues(data);
+    // target.getRange(2, 2, data.length, 1).setValue(SpreadsheetApp.getActiveSpreadsheet().getSheets()[0].getRange(2, 3).getValue());
+    target.getRange(2, 1, data.length, data[0].length).setNumberFormat('@').setValues(data);
 
     SpreadsheetApp.getUi().alert(`주문 제출이 완료되었습니다.\n`);
 

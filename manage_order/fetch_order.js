@@ -41,6 +41,38 @@ async function fetch_Order(file) {
     //}
 }
 
+async function fetch_Order_from_sheet() {
+    const target_sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('에러확인');
+    
+    client.forEach((c, k) => {
+        if (k == '셀러명') {
+            return;
+        }
+        if (c.get('전용폴더ID')) {
+            const folder = DriveApp.getFolderById(c.get('전용폴더ID'));
+            const file = folder.getFilesByName(`${k}_대시보드`);
+            
+            if (file.hasNext()) {
+                console.log(file);
+                const order_sheet = SpreadsheetApp.openById(file.next().getId()).getSheetByName('주문데이터');
+                const order = order_sheet.getDataRange().getValues();
+
+                if (order.length <= 1) {
+                    return;
+                }
+                order.splice(0, 1);
+
+                target_sheet.insertRowsAfter(1, order.length);
+                target_sheet.getRange(2, 4, order.length, order[0].length).setNumberFormat('@').setValues(order);
+                target_sheet.getRange(2, 2, order.length, 1).setNumberFormat('@').setValue(k);
+
+                order_sheet.deleteRows(2, order.length);
+            }
+        };
+        return;
+    });
+}
+
 async function set_Format(id, format) {
     SpreadsheetApp.openById(id).getDataRange().setNumberFormat(format);
 }
@@ -81,11 +113,14 @@ async function fetch_Data(file_id, form, client_info) {
             }
 
             //배송메세지 \n 삭제
-            if (column === '배송메세지') {
+            /* if (column === '배송메세지') {
                 input_data[index][j] = o[i - 1].split('\n').join(' ');
                 return;
+            } */
+            if (o[i - 1]) {
+                o[i - 1] = o[i - 1].split('\n').join(' ');
             }
-
+            
             //우편번호 양식 변경
             if (column === '우편번호') {
                 input_data[index][j] = Utilities.formatString('%05d', o[i - 1].split('-').join(''));

@@ -10,22 +10,22 @@ async function submit_Order() {
 
     if (table.length == 1) {
         return;
-    }
+    };
     
     table.splice(0, 1);
-    let submit_table = new Map();
+    // let submit_table = new Map();
     let total_table = new Array();
     let error_table = new Array();
 
     let count = 0;
     table.forEach((t) => {
         if (t[order_form.get('에러확인')] == true) {
-            if (!submit_table.get(t[order_form.get('출고채널')])) {
+            /* if (!submit_table.get(t[order_form.get('출고채널')])) {
                 submit_table.set(t[order_form.get('출고채널')], new Array());
             }
             let temp = submit_table.get(t[order_form.get('출고채널')]);
             temp.push(t);
-            submit_table.set(t[order_form.get('출고채널')], temp);
+            submit_table.set(t[order_form.get('출고채널')], temp); */
             total_table.push(t);
         } else {
             count++;
@@ -33,28 +33,32 @@ async function submit_Order() {
         }
     });
 
-    submit_table.forEach((t, k) => {
+    /* submit_table.forEach((t, k) => {
+        if (!SpreadsheetApp.getActiveSpreadsheet().getSheetByName(k)) {
+            SpreadsheetApp.getActiveSpreadsheet().insertSheet().setName(k);
+        }
         let target = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(k);
         target.insertRowsAfter(1, t.length);
         target.getRange(2, 1, t.length, t[0].length).setValues(t);
-    });
+    }); */
 
     if (total_table.length > 0) {
         target_sheet.insertRowsAfter(1, total_table.length);
         target_sheet.getRange(2, 1, total_table.length, total_table[0].length).setValues(total_table);
         error_sheet.sort(order_form.get('에러확인') + 1);
         error_sheet.deleteRows(count + 2, total_table.length);
-    }
+    };
 }
 
-async function catch_Error(index, order, order_list, num) {
+// async function catch_Error(index, order, order_list, num) {
+async function catch_Error(index, order) {
     order[order_form.get('에러확인')] = true;
 
-    if (order_list.filter(x => x[order_form.get('상품주문번호')].indexOf(order[order_form.get('상품주문번호')]) != -1).length > 1) {
+    /* if (order_list.filter(x => x[order_form.get('상품주문번호')].indexOf(order[order_form.get('상품주문번호')]) != -1).length > 1) {
         order[order_form.get('상품주문번호')] = `${order[order_form.get('상품주문번호')]}-${Utilities.formatString('%02d', num)}`;
         //SpreadsheetApp.getActiveSpreadsheet().getSheetByName('에러확인').getRange(index + 2, order_form.get('상품주문번호') + 1).setBackground('#f4cccc');
         //order[order_form.get('에러확인')] = false;
-    }
+    } */
 
     const check = ['셀러명', '주문번호', '상품주문번호', '상품코드', '수량', '주문자', '주문자연락처', '수령인', '수령인연락처', '주소', '우편번호', '상품명', '출고채널', '택배사', '판매액', '배송비', '수수료'];
     check.forEach((c) => {
@@ -93,8 +97,10 @@ async function fetch_Additional_info() {
         if (p) {
             if (p)
             o[order_form.get('상품명')] = p.get('상품명');
-            o[order_form.get('출고채널')] = p.get('출고채널');
-            o[order_form.get('택배사')] = delivery.get(p.get('출고채널'));
+            if (!o[order_form.get('출고채널')]) {
+                o[order_form.get('출고채널')] = p.get('출고채널');
+                o[order_form.get('택배사')] = delivery.get(p.get('출고채널'));
+            }
             o[order_form.get('판매액')] = Number(p.get('판매가')) * Number(o[order_form.get('수량')]);
 
             //수수료구하기
@@ -123,7 +129,7 @@ async function fetch_Additional_info() {
         return o;
     });
 
-    let num = 1;
+    let num = 0;
 
     order.map(async (o, i) => {
 
@@ -162,15 +168,27 @@ async function fetch_Additional_info() {
         }
         o[date] = Utilities.formatDate(o[date], 'GMT+9', 'yyyy/MM/dd HH:mm');
 
-        if (i > 1) {
+
+        if (order.filter(x => x[order_form.get('상품주문번호')].indexOf(o[order_form.get('상품주문번호')]) != -1).length > 1) {
+            num++;
+        } else {
+            num = 0;
+        }
+
+        if (num > 0) {
+            o[order_form.get('상품주문번호')] = `${o[order_form.get('상품주문번호')]}-${Utilities.formatString('%02d', num)}`;
+        }
+        /* if (i > 1) {
             if (o[order_form.get('주문번호')] == order[i - 1][order_form.get('주문번호')]) {
                 num++;
             } else {
                 num = 1;
             }
-        }
+        } */
         
-        o = await catch_Error(i, o, order, num)
+        // o = await catch_Error(i, o, order, num)
+        
+        o = await catch_Error(i, o);
         
         return o;
     });

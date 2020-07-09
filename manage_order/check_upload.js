@@ -43,10 +43,11 @@ async function check_Upload() {
         }
     }
 
-    await fetch_Additional_info();
-    await submit_Order();
+    // await fetch_Additional_info();
+    // await submit_Order();
 }
 
 async function insert_File(props, blob) {
+    console.log(props, blob);
     return Drive.Files.insert(props, blob).id;
 }

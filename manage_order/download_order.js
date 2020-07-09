@@ -3,7 +3,65 @@ var ref = get_Ref();
 
 async function download_Order() {
     const ss = SpreadsheetApp.getActiveSpreadsheet();
-    const channel = [ss.getSheetByName('굿스코아'), ss.getSheetByName('제이에스비즈')];
+    const channels = [ss.getSheetByName('굿스코아'), ss.getSheetByName('제이에스비즈')];
+
+    const target = SpreadsheetApp.openById(ref.get('출고지시'));
+    const former = target.getSheets();
+    former.forEach((f, i) => {
+        f.setName(i);
+    });
+
+    const time = ss.getSheetByName('주문현황').getDataRange().getValues();
+
+    channels.forEach((c) => {
+        if (c.getLastRow() <= 1) {
+            return;
+        }
+
+        const table = c.getDataRange().getValues();
+        target.insertSheet().setName(c.getName()).getRange(1, 1, table.length, table[0].length).setNumberFormat('@').setValues(table);
+
+        table.forEach((t) => {
+            /* time.forEach((x, i) => {
+                if (x[order_form.get('상품주문번호')] == t[order_form.get('상품주문번호')]) {
+                    return i;
+                }
+            }); */
+
+            let temp = time.findIndex((x) => {
+                return x[order_form.get('상품주문번호')] == t[order_form.get('상품주문번호')];
+            });
+
+            if (temp && temp != -1) {
+                time[temp][order_form.get('출고지시')] = Utilities.formatDate(new Date(), 'GMT+9', 'HH:mm');
+            }
+        });
+    });
+
+    if (former.length == target.getSheets().length) {
+        SpreadsheetApp.getUi().alert(`주문이 없습니다.`);
+        return;
+    }
+
+    former.forEach((f) => {
+        target.deleteSheet(f);
+    });
+
+    const ex = target.getSheets();
+    target.rename(`${Utilities.formatDate(new Date(), 'GMT+9', 'MMddHHmm_출고지시')}`);
+
+    let source = '';
+    ex.forEach((x) => {
+        const url = `https:\/\/docs.google.com\/spreadsheets\/d\/${target.getId()}\/export?gid=${x.getSheetId()}`;
+        const response = UrlFetchApp.fetch(url, {headers: {Authorization: `Bearer ${ScriptApp.getOAuthToken()}`}});
+        const convert_url = DriveApp.getFolderById(ref.get('다운로드/아카이브')).createFile(response.getBlob().setName(`${Utilities.formatDate(new Date(), 'GMT+9', 'MMddHHmm')}_${x.getSheetName()}_출고지시.xlsx`)).getDownloadUrl();
+        source += `<a href="${convert_url}" target="_blank">${x.getSheetName()}<\/a><\/br>`;
+    });
+
+    const html = HtmlService.createHtmlOutput(source);
+    SpreadsheetApp.getUi().showModalDialog(html, '오른쪽 클릭 후 [새 탭에서 열기] 클릭');
+
+    ss.getSheetByName('주문현황').getDataRange().setValues(time);
     
     // const target = SpreadsheetApp.openById(`1xXUAVL3S0NCytOegk52zgLAeiVU89skUyMh_hMElBwg`);
     
@@ -30,7 +88,7 @@ async function download_Order() {
 
     // const res = UrlFetchApp.fetch(url, {headers: {Authorization: 'Bearer ' + ScriptApp.getOAuthToken()}});
     //const sheet = target.getSheets();
-    let source = '';
+    /* let source = '';
     channel.forEach((c) => {
         if (c.getLastRow() > 1) {
             const url = `https:\/\/docs.google.com\/spreadsheets\/d\/${ss.getId()}\/export?gid=${c.getSheetId()}`;
@@ -55,5 +113,5 @@ async function download_Order() {
         if (c.getLastRow() > 1) {
             c.deleteRows(2, c.getLastRow() - 1);
         }
-    })
+    }) */
 }
