@@ -19,6 +19,10 @@
       "version": "v4"
     }]
   },
+  "webapp": {
+    "access": "DOMAIN",
+    "executeAs": "USER_DEPLOYING"
+  },
   "exceptionLogging": "STACKDRIVER",
   "runtimeVersion": "V8"
 }

@@ -50,11 +50,11 @@ async function fetch_Order_from_sheet() {
         }
         if (c.get('전용폴더ID')) {
             const folder = DriveApp.getFolderById(c.get('전용폴더ID'));
-            const file = folder.getFilesByName(`${k}_대시보드`);
+            const files = folder.getFilesByName(`${k}_대시보드`);
             
-            if (file.hasNext()) {
-                console.log(file);
-                const order_sheet = SpreadsheetApp.openById(file.next().getId()).getSheetByName('주문데이터');
+            if (files.hasNext()) {
+                const file = files.next();
+                const order_sheet = SpreadsheetApp.openById(file.getId()).getSheetByName('주문데이터');
                 const order = order_sheet.getDataRange().getValues();
 
                 if (order.length <= 1) {
@@ -120,7 +120,7 @@ async function fetch_Data(file_id, form, client_info) {
             if (o[i - 1]) {
                 o[i - 1] = o[i - 1].split('\n').join(' ');
             }
-            
+
             //우편번호 양식 변경
             if (column === '우편번호') {
                 input_data[index][j] = Utilities.formatString('%05d', o[i - 1].split('-').join(''));

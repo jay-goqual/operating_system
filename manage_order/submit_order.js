@@ -95,7 +95,6 @@ async function fetch_Additional_info() {
         let code = order_form.get('상품코드');
         let p = productInfo.get(o[code]);
         if (p) {
-            if (p)
             o[order_form.get('상품명')] = p.get('상품명');
             if (!o[order_form.get('출고채널')]) {
                 o[order_form.get('출고채널')] = p.get('출고채널');
