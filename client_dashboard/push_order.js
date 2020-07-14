@@ -17,6 +17,8 @@ async function push_Order() {
         return;
     }
 
+    const product = get_Product();
+
     data = data.map((row, i) => {
         return row.map((d, j) => {
 
@@ -44,7 +46,6 @@ async function push_Order() {
                 }
             }
 
-            const product = get_Product();
             //상품코드 확인
             if (j == 2) {
                 if (!product.get(d)) {
