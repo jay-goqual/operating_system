@@ -54,8 +54,9 @@ async function download_Order() {
     ex.forEach((x) => {
         const url = `https:\/\/docs.google.com\/spreadsheets\/d\/${target.getId()}\/export?gid=${x.getSheetId()}`;
         const response = UrlFetchApp.fetch(url, {headers: {Authorization: `Bearer ${ScriptApp.getOAuthToken()}`}});
-        const convert_url = DriveApp.getFolderById(ref.get('다운로드/아카이브')).createFile(response.getBlob().setName(`${Utilities.formatDate(new Date(), 'GMT+9', 'MMddHHmm')}_${x.getSheetName()}_출고지시.xlsx`)).getDownloadUrl();
-        source += `<a href="${convert_url}" target="_blank">${x.getSheetName()}<\/a><\/br>`;
+        // const convert_url = DriveApp.getFolderById(ref.get('다운로드/아카이브')).createFile(response.getBlob().setName(`${Utilities.formatDate(new Date(), 'GMT+9', 'MMddHHmm')}_${x.getSheetName()}_출고지시.xlsx`)).getDownloadUrl();
+        // source += `<a href="${convert_url}" target="_blank">${x.getSheetName()}<\/a><\/br>`;
+        source += `<a href="${url}" target="_blank">${x.getSheetName()}<\/a><\/br>`;
     });
 
     const html = HtmlService.createHtmlOutput(source);
