@@ -8,7 +8,7 @@ function Init() {
 async function push_Order() {
     const order_sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('주문접수');
     order_sheet.getRange(2, 1, order_sheet.getLastRow() - 1, order_sheet.getLastColumn()).setBackground(null);
-    let data = order_sheet.getDataRange().getValues();
+    let data = order_sheet.getDataRange().setNumberFormat('@').getValues();
     let error = [false, ''];
     data.splice(0, 1);
 

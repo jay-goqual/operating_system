@@ -81,12 +81,27 @@ async function send_Invoice() {
 
     channel.forEach((c) => {
         let name = c.getName();
-        if (c.getName() == '엔분의일') {
-            c.setName('발송처리');
+        const new_sheet = SpreadsheetApp.create(`${Utilities.formatDate(new Date(), 'GMT+9', 'yyMMdd')}_출고완료_${name}`);
+        c.copyTo(new_sheet);
+        new_sheet.deleteSheet(new_sheet.getSheets()[0]);
+        if (name == '엔분의일') {
+            new_sheet.getSheets()[0].setName('발송처리');
+        } else {
+            new_sheet.getSheets()[0].setName(name);
         }
-        const url = `https:\/\/docs.google.com\/spreadsheets\/d\/${ss.getId()}\/export?gid=${c.getSheetId()}`;
+        
+        DriveApp.getFolderById(ref.get('다운로드/아카이브')).addFile(DriveApp.getFileById(new_sheet.getId()));
+        DriveApp.getRootFolder().removeFile(DriveApp.getFileById(new_sheet.getId()));
+        /* if (c.getName() == '엔분의일') {
+            c.setName('발송처리');
+        } */
+        /* const url = `https:\/\/docs.google.com\/spreadsheets\/d\/${ss.getId()}\/export?gid=${c.getSheetId()}`;
+        const response = UrlFetchApp.fetch(url, {headers: {Authorization: `Bearer ${ScriptApp.getOAuthToken()}`}}); */
+
+        // let x = create_invoice_file(response, name);
+
+        const url = `https:\/\/docs.google.com\/spreadsheets\/d\/${new_sheet.getId()}\/export?format=xlsx`;
         const response = UrlFetchApp.fetch(url, {headers: {Authorization: `Bearer ${ScriptApp.getOAuthToken()}`}});
-        let x = DriveApp.getFolderById(ref.get('다운로드/아카이브')).createFile(response.getBlob().setName(`${Utilities.formatDate(new Date(), 'GMT+9', 'yyMMdd')}_출고완료_${name}.xlsx`));
 
         if (client.get(name).get('출고이메일')) {
             MailApp.sendEmail({
@@ -95,9 +110,16 @@ async function send_Invoice() {
                 subject: `[헤이홈] ${Utilities.formatDate(new Date(), 'GMT+9', 'yyMMdd')}일자 운송장 정보`,
                 htmlBody: '<div dir="ltr">안녕하세요.<br>주식회사 고퀄의 커머스팀입니다.<br><br>금일 주문 건에 대한 운송장 정보 전달드립니다.<br><br>감사합니다 :)</div>',
                 //attachments: [{fileName: x.getName(), content: response.getContent()}]
-                attachments: [x]
+                attachments: [response.getBlob().setName(`${new_sheet.getName()}.xlsx`)]
             });
         } else {
+            /* if (c.getName() == '엔분의일') {
+                c.setName('발송처리');
+            } */
+            /* if (name == '엔분의일') {
+                SpreadsheetApp.openById(x.getId()).getSheets()[0].setName('발송처리');
+            } */
+            // console.log(x.getDownloadUrl());
             source += `<a href="${url}" target="_blank">${name}<\/a><\/br>`;
         }
     })
@@ -107,3 +129,7 @@ async function send_Invoice() {
         SpreadsheetApp.getUi().showModalDialog(html, '오른쪽 클릭 후 [새 탭에서 열기] 클릭');
     }
 }
+
+/* async function create_invoice_file(response, name) {
+    return DriveApp.getFolderById(ref.get('다운로드/아카이브')).createFile(response.getBlob().setName(`${Utilities.formatDate(new Date(), 'GMT+9', 'yyMMdd')}_출고완료_${name}.xlsx`));
+} */
