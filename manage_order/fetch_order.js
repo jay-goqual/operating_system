@@ -130,7 +130,7 @@ async function fetch_Data(file_id, form, client_info) {
             //전화번호 양식변경
             if (column === '주문자연락처' || column === '수령인연락처') {
                 if (o[i - 1].indexOf('-') == -1) {
-                    input_data[index][j] = o[i - 1];
+                    input_data[index][j] = o[i - 1].split(' ').join('');
                 } else {
                     input_data[index][j] = o[i - 1].split('-').join('');
                 }

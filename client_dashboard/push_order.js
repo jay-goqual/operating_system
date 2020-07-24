@@ -35,6 +35,7 @@ async function push_Order() {
                 order_sheet.getRange(i + 2, j + 1).setBackground('#f4cccc');
                 error[0] = true;
                 error[1] += `[${convert_Column(j + 1)}${i + 2}] 빈 데이터가 있습니다.\n`;
+                return d;
             }
 
             //상품주문번호 중복 확인
@@ -43,6 +44,7 @@ async function push_Order() {
                     order_sheet.getRange(i + 2, j + 1).setBackground('#f4cccc');
                     error[0] = true;
                     error[1] += `[${convert_Column(j + 1)}${i + 2}] 중복된 상품주문번호가 있습니다.\n`;
+                    return d;
                 }
             }
 
@@ -52,16 +54,18 @@ async function push_Order() {
                     order_sheet.getRange(i + 2, j + 1).setBackground('#f4cccc');
                     error[0] = true;
                     error[1] += `[${convert_Column(j + 1)}${i + 2}] 상품코드가 존재하지 않거나 판매종료된 상품입니다.\n`;
+                    return d;
                 }
             }
 
             //우편번호 양식 변경
             if (j == 9) {
                 let temp = d.split('-').join('');
-                if (temp.lenth > 6) {
+                if (temp.lenth > 6 || Number(temp) != temp) {
                     order_sheet.getRange(i + 2, j + 1).setBackground('#f4cccc');
                     error[0] = true;
                     error[1] += `[${convert_Column(j + 1)}${i + 2}] 잘못된 우편번호입니다.\n`;
+                    return d;
                 }
                 return Utilities.formatString('%05d', temp);
             }
@@ -73,6 +77,7 @@ async function push_Order() {
                     order_sheet.getRange(i + 2, j + 1).setBackground('#f4cccc');
                     error[0] = true;
                     error[1] += `[${convert_Column(j + 1)}${i + 2}] 잘못된 전화번호입니다.\n`;
+                    return d;
                 }
                 return temp;
             }

@@ -7,6 +7,7 @@ async function submit_Order() {
     const error_sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('에러확인');
     const target_sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('주문현황');
     const table = error_sheet.getDataRange().getValues();
+    const target_table =target_sheet.getDataRange().getValues();
 
     if (table.length == 1) {
         return;
@@ -18,7 +19,32 @@ async function submit_Order() {
     let error_table = new Array();
 
     let count = 0;
-    table.forEach((t) => {
+    let check = false;
+    table.forEach((t, i) => {
+        if (target_table.filter(x =>
+            x[order_form.get('주문자')] == t[order_form.get('주문자')] &&
+            x[order_form.get('수령인')] == t[order_form.get('수령인')] &&
+            x[order_form.get('주소')] == t[order_form.get('주소')] && 
+            x[order_form.get('상품코드')] == t[order_form.get('상품코드')] && 
+            x[order_form.get('셀러명')] == t[order_form.get('셀러명')] &&
+            x[order_form.get('수량')] == t[order_form.get('수량')]).length > 0) {
+                check = true;
+                error_sheet.getRange(i + 2, 1, 1, table[0].length).setBackground('#f4cccc');
+                error_sheet.getRange(i + 2, order_form.get('에러확인') + 1).setValue(false);
+                t[order_form.get('에러확인')] = false;
+            }
+        if (total_table.filter(x =>
+            x[order_form.get('주문자')] == t[order_form.get('주문자')] &&
+            x[order_form.get('수령인')] == t[order_form.get('수령인')] &&
+            x[order_form.get('주소')] == t[order_form.get('주소')] && 
+            x[order_form.get('상품코드')] == t[order_form.get('상품코드')] && 
+            x[order_form.get('셀러명')] == t[order_form.get('셀러명')] &&
+            x[order_form.get('수량')] == t[order_form.get('수량')]).length > 0) {
+                check = true;
+                error_sheet.getRange(i + 2, 1, 1, table[0].length).setBackground('#f4cccc');
+                error_sheet.getRange(i + 2, order_form.get('에러확인') + 1).setValue(false);
+                t[order_form.get('에러확인')] = false;
+            }
         if (t[order_form.get('에러확인')] == true) {
             /* if (!submit_table.get(t[order_form.get('출고채널')])) {
                 submit_table.set(t[order_form.get('출고채널')], new Array());
@@ -48,6 +74,10 @@ async function submit_Order() {
         error_sheet.sort(order_form.get('에러확인') + 1);
         error_sheet.deleteRows(count + 2, total_table.length);
     };
+
+    if (check) {
+        SpreadsheetApp.getUi().alert('중복 주문이 감지되었습니다. 에러확인 시트를 확인해 주세요.');
+    }
 }
 
 // async function catch_Error(index, order, order_list, num) {
