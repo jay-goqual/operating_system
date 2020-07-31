@@ -1,9 +1,9 @@
 var order_form = get_Order_form();
 var ref = get_Ref();
 
-async function download_Order() {
+async function download_Order(channel) {
     const ss = SpreadsheetApp.getActiveSpreadsheet();
-    const channels = [ss.getSheetByName('굿스코아'), ss.getSheetByName('제이에스비즈')];
+    const channels = [ss.getSheetByName(channel)];
 
     const target = SpreadsheetApp.openById(ref.get('출고지시'));
     const former = target.getSheets();
@@ -29,7 +29,11 @@ async function download_Order() {
             }); */
 
             let temp = time.findIndex((x) => {
-                return x[order_form.get('상품주문번호')] == t[order_form.get('상품주문번호')];
+                if (channel == '제이에스비즈') {
+                    return x[order_form.get('상품주문번호')] == t[1];
+                } else {
+                    return x[order_form.get('상품주문번호')] == t[order_form.get('상품주문번호')];
+                }
             });
 
             if (temp && temp != -1) {

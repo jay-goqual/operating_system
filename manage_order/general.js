@@ -7,7 +7,9 @@ function Init() {
     .createMenu('출고관리')
     .addItem('주문취합', 'fetch_Order_button')
     .addItem('주문제출', 'submit_Order_button')
-    .addItem('출고지시', 'download_Order')
+    .addItem('출고지시', 'download_general_Order')
+    .addSeparator()
+    .addItem('커튼출고지시', 'download_curtain_Order')
     .addSeparator()
     .addItem('송장입력', 'fetch_Invcoie_button')
     .addItem('송장추출', 'push_Invoice_button')
@@ -15,6 +17,14 @@ function Init() {
     .addSeparator()
     .addItem('출고종료', 'delete_Archive')
     .addToUi();
+}
+
+async function download_general_Order() {
+    await download_Order('굿스코아');
+}
+
+async function download_curtain_Order() {
+    await download_Order('제이에스비즈');
 }
 
 async function fetch_Order_button() {

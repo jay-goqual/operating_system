@@ -48,6 +48,5 @@ async function check_Upload() {
 }
 
 async function insert_File(props, blob) {
-    console.log(props, blob);
     return Drive.Files.insert(props, blob).id;
 }

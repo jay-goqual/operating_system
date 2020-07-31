@@ -55,6 +55,13 @@ async function push_Invoice() {
             target.getSheetByName(k).getRange(1, 1, 1, t[0].length).setValues([invoice_form.get(client.get(k).get('업로드양식'))]);
         }
 
+        if (k == '천삼백케이') {
+            t.map((x) => {
+                x[1] = x[1].split(`${x[0]}-`).join('');
+                return x;
+            })
+        }
+
         if (k == '공식몰') {row = 3;}
         if (k == '엔분의일') {
             target.getSheetByName(k).getRange(1, 2).setValue('배송방법');
@@ -68,7 +75,8 @@ async function push_Invoice() {
         target.getSheetByName(k).getRange(row, 1, t.length, t[0].length).setNumberFormat('@').setValues(t);
 
         if (k == '카카오스토어') {
-            target.getSheetByName(k).getRange(1, 3, target.getSheetByName(k).getLastRow(), 1).clearFormat();
+            target.getSheetByName(k).getRange(1, 3).setValue('택배사코드');
+            target.getSheetByName(k).getRange(1, 5).setValue('수령인명');
         }
     });
 }
@@ -100,7 +108,12 @@ async function send_Invoice() {
 
         // let x = create_invoice_file(response, name);
 
-        const url = `https:\/\/docs.google.com\/spreadsheets\/d\/${new_sheet.getId()}\/export?format=xlsx`;
+        let url = null;
+        if(name == '천삼백케이') {
+            url = `https:\/\/docs.google.com\/spreadsheets\/d\/${new_sheet.getId()}\/export?format=csv`;    
+        } else {
+            url = `https:\/\/docs.google.com\/spreadsheets\/d\/${new_sheet.getId()}\/export?format=xlsx`;
+        }
         const response = UrlFetchApp.fetch(url, {headers: {Authorization: `Bearer ${ScriptApp.getOAuthToken()}`}});
 
         if (client.get(name).get('출고이메일')) {

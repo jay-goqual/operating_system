@@ -22,24 +22,26 @@ async function submit_Order() {
     let check = false;
     table.forEach((t, i) => {
         if (target_table.filter(x =>
-            x[order_form.get('주문자')] == t[order_form.get('주문자')] &&
+            (x[order_form.get('주문자')] == t[order_form.get('주문자')] &&
             x[order_form.get('수령인')] == t[order_form.get('수령인')] &&
             x[order_form.get('주소')] == t[order_form.get('주소')] && 
             x[order_form.get('상품코드')] == t[order_form.get('상품코드')] && 
             x[order_form.get('셀러명')] == t[order_form.get('셀러명')] &&
-            x[order_form.get('수량')] == t[order_form.get('수량')]).length > 0) {
+            x[order_form.get('수량')] == t[order_form.get('수량')]) && 
+            (x[order_form.get('상품주문번호')].indexOf(t[order_form.get('상품주문번호')].split('-')[0]) != -1)).length > 0) {
                 check = true;
                 error_sheet.getRange(i + 2, 1, 1, table[0].length).setBackground('#f4cccc');
                 error_sheet.getRange(i + 2, order_form.get('에러확인') + 1).setValue(false);
                 t[order_form.get('에러확인')] = false;
             }
         if (total_table.filter(x =>
-            x[order_form.get('주문자')] == t[order_form.get('주문자')] &&
+            (x[order_form.get('주문자')] == t[order_form.get('주문자')] &&
             x[order_form.get('수령인')] == t[order_form.get('수령인')] &&
             x[order_form.get('주소')] == t[order_form.get('주소')] && 
             x[order_form.get('상품코드')] == t[order_form.get('상품코드')] && 
             x[order_form.get('셀러명')] == t[order_form.get('셀러명')] &&
-            x[order_form.get('수량')] == t[order_form.get('수량')]).length > 0) {
+            x[order_form.get('수량')] == t[order_form.get('수량')]) &&
+            (x[order_form.get('상품주문번호')].indexOf(t[order_form.get('상품주문번호')].split('-')[0]) != -1)).length > 0) {
                 check = true;
                 error_sheet.getRange(i + 2, 1, 1, table[0].length).setBackground('#f4cccc');
                 error_sheet.getRange(i + 2, order_form.get('에러확인') + 1).setValue(false);
@@ -207,6 +209,7 @@ async function fetch_Additional_info() {
         if (num > 0) {
             o[order_form.get('상품주문번호')] = `${o[order_form.get('상품주문번호')]}-${Utilities.formatString('%02d', num)}`;
         }
+
         /* if (i > 1) {
             if (o[order_form.get('주문번호')] == order[i - 1][order_form.get('주문번호')]) {
                 num++;

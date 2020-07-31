@@ -16,6 +16,17 @@ async function fetch_Order(file) {
 
     let client_info = client.get(separator[1]);
     let client_form = client_info.get('업로드양식');
+    
+    if (separator[1] == '로켓배송') {
+        input_data = await fetch_coupang_Data(file.getId());
+        target_sheet.insertRowsAfter(1, input_data.length);
+        target_sheet.getRange(2, 1, input_data.length, input_data[0].length).setNumberFormat('@').setValues(input_data);
+
+        //아카이브로 보내버리기
+        DriveApp.getFolderById(ref.get('업로드/아카이브')).addFile(file);
+        file.getParents().next().removeFile(file);
+    }
+
     if (fetch_form.get(client_form)) {
         //let input_data: Array<Array<string>>;
         if (client_form == '스마트스토어') {
@@ -39,6 +50,27 @@ async function fetch_Order(file) {
         file.getParents().next().removeFile(file);
     }
     //}
+}
+
+async function fetch_coupang_Data(file_id) {
+    const data = SpreadsheetApp.openById(file_id).getDataRange().getValues();
+    let input_data = new Array();
+    
+    for (i = 0; i < data.length - 28; i++) {
+        input_data[i] = new Array();
+        input_data[i][order_form.get('셀러명')] = '로켓배송';
+        input_data[i][order_form.get('주문번호')] = data[9][2];
+        input_data[i][order_form.get('상품주문번호')] = `${data[9][2]}-${Utilities.formatString('%02d', i + 1)}`;
+        input_data[i][order_form.get('상품코드')] = data[21 + i][2];
+        input_data[i][order_form.get('수량')] = data[21 + i][5];
+        input_data[i][order_form.get('주문자')] = data[13][2];
+        input_data[i][order_form.get('주문자연락처')] = data[13][6];
+        input_data[i][order_form.get('수령인')] = data[9][7];
+        input_data[i][order_form.get('수령인연락처')] = data[12][8];
+        input_data[i][order_form.get('주소')] = data[12][3];
+    }
+
+    return input_data;
 }
 
 async function fetch_Order_from_sheet() {
