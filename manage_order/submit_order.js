@@ -122,7 +122,10 @@ async function fetch_Additional_info() {
 
     order.map((o) => {
         o[order_form.get('접수일')] = Utilities.formatDate(new Date(), 'GMT+9', 'yyyy/MM/dd HH:mm');
-        o[order_form.get('셀러코드')] = client.get(o[order_form.get('셀러명')]).get('셀러코드');
+        if (o[order_form.get('셀러명')] != '직접발주') {
+            o[order_form.get('셀러코드')] = client.get(o[order_form.get('셀러명')]).get('셀러코드');
+        }
+        // o[order_form.get('셀러코드')] = client.get(o[order_form.get('셀러명')]).get('셀러코드');
 
         let code = order_form.get('상품코드');
         let p = productInfo.get(o[code]);
@@ -132,7 +135,11 @@ async function fetch_Additional_info() {
                 o[order_form.get('출고채널')] = p.get('출고채널');
                 o[order_form.get('택배사')] = delivery.get(p.get('출고채널'));
             }
-            o[order_form.get('판매액')] = Number(p.get('판매가')) * Number(o[order_form.get('수량')]);
+            if (o[order_form.get('셀러명')] == '직접발주') {
+                return;
+            } else {
+                o[order_form.get('판매액')] = Number(p.get('판매가')) * Number(o[order_form.get('수량')]);
+            }
 
             //수수료구하기
             let rate;
@@ -148,7 +155,7 @@ async function fetch_Additional_info() {
             if (p.get(String(o[order_form.get('셀러코드')]))) {
                 o[order_form.get('수수료')] = o[order_form.get('판매액')] - (Number(p.get(String(o[order_form.get('셀러코드')]))) * o[order_form.get('수량')]);
             } else {
-                o[order_form.get('수수료')] = Math.floor((Number(p.get('판매가')) * rate) / 10) * 10 * o[order_form.get('수량')];
+                o[order_form.get('수수료')] = Math.ceil((Number(p.get('판매가')) * rate) / 10) * 10 * o[order_form.get('수량')];
             }
 
             if (total.has(o[order_form.get('주문번호')])) {
@@ -169,13 +176,15 @@ async function fetch_Additional_info() {
         let code = o[order_form.get('상품코드')];
         let t = total.get(orderId);
         let p = productInfo.get(code);
-        if (p) {
-            if (Number(t) > Number(p.get('무료배송기준')) || t == -1) {
-                o[order_form.get('배송비')] = 0;
-            } else {
-                o[order_form.get('배송비')] = p.get('상품배송비');
-                total.set(orderId, -1);
-            }
+        if (o[order_form.get('셀러명')] != '직접발주') {
+            if (p) {
+                if (Number(t) > Number(p.get('무료배송기준')) || t == -1) {
+                    o[order_form.get('배송비')] = 0;
+                } else {
+                    o[order_form.get('배송비')] = p.get('상품배송비');
+                    total.set(orderId, -1);
+                }
+            }   
         }
 
         //결제일 양식 통일 및 변경
@@ -200,7 +209,13 @@ async function fetch_Additional_info() {
         o[date] = Utilities.formatDate(o[date], 'GMT+9', 'yyyy/MM/dd HH:mm');
 
 
-        if (order.filter(x => x[order_form.get('상품주문번호')].indexOf(o[order_form.get('상품주문번호')]) != -1).length > 1) {
+        /* if (order.filter(x => x[order_form.get('상품주문번호')].indexOf(o[order_form.get('상품주문번호')]) != -1).length > 1) {
+            num++;
+        } else {
+            num = 0;
+        } */
+
+        if (order.filter(x => x[order_form.get('상품주문번호')] == o[order_form.get('상품주문번호')]).length > 1) {
             num++;
         } else {
             num = 0;
