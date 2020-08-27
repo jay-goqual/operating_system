@@ -6,3 +6,11 @@ clasp setting scriptId 1j-LNozyIk5gykPG9C-oK5hgfLskEjwf_IQxs590Q6_SnVFimHfiWePYC
 clasp push
 clasp setting scriptId 1Jshrq5uMUIMUNc3D0QIqGTB3legR84JHu1e5PAWooRorBIGfh9EgeL9G
 clasp push
+clasp setting scriptId 10zNX30ksxSW9zTUEnws3yvF9Zvg6eJ2W_aQI3h9GSlj2VQxOs9ECyUAT
+clasp push
+clasp setting scriptId 1_VhlvjGdcqGfrhRt7selU2-W4Y8zdyXOBmWJ0lioOasRPGfCVwk_zfY3
+clasp push
+clasp setting scriptId 1EHRHxkV1gGP7nWq_c9XCvHdcohEbRKRSiJwTSDNUkVIkF6mQ9PoQUYc-
+clasp push
+clasp setting scriptId 1WiZlVbHgoS__mCe_QetxKShLWYSTw1lQeUxCvFr6OwkMtzyp3qoU5v9l
+clasp push

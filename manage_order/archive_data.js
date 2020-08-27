@@ -35,15 +35,20 @@ async function archive_Data() {
     const sale_form = ['접수일', '셀러명', '셀러코드', '주문번호', '상품주문번호', '상품코드', '수량', '결제일', '판매액', '배송비', '수수료', '송장번호'];
 
     let push_table = new Array();
+    let count = 0;
     data.forEach((d, i) => {
-        push_table[i] = new Array();
-        sale_form.forEach((f) => {
-            push_table[i].push(d[order_form.get(f)]);
-        })
+        if (d[order_form.get('출고일시')]) {
+            push_table[count] = new Array();
+            sale_form.forEach((f) => {
+                push_table[count].push(d[order_form.get(f)]);
+            });
+            count++;
+        }
     });
     
-    manage_sale.insertRowsAfter(1, data.length);
-    manage_sale.getRange(2, 1, data.length, sale_form.length).setValues(push_table);
+    manage_sale.insertRowsAfter(1, push_table.length);
+    manage_sale.getRange(2, 1, push_table.length, sale_form.length).setValues(push_table);
 
-    data_sheet.deleteRows(2, data_sheet.getLastRow() - 1);
+    data_sheet.sort(24, false);
+    data_sheet.deleteRows(2, push_table.length);
 }

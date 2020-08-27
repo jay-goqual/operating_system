@@ -23,7 +23,7 @@ async function push_Order() {
         return row.map((d, j) => {
 
             //배송메세지 \n 삭제
-            if (j == 10) {
+            if (j == 10 || j == 8) {
                 return d.split('\n').join(' ');
             }
 

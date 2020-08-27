@@ -153,7 +153,9 @@ async function fetch_Additional_info() {
             }
 
             if (p.get(String(o[order_form.get('셀러코드')]))) {
-                o[order_form.get('수수료')] = o[order_form.get('판매액')] - (Number(p.get(String(o[order_form.get('셀러코드')]))) * o[order_form.get('수량')]);
+                // o[order_form.get('수수료')] = o[order_form.get('판매액')] - (Number(p.get(String(o[order_form.get('셀러코드')]))) * o[order_form.get('수량')]);
+                o[order_form.get('판매액')] = Number(p.get(String(o[order_form.get('셀러코드')]))) * o[order_form.get('수량')];
+                o[order_form.get('수수료')] = 0;
             } else {
                 o[order_form.get('수수료')] = Math.ceil((Number(p.get('판매가')) * rate) / 10) * 10 * o[order_form.get('수량')];
             }

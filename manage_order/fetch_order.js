@@ -56,18 +56,18 @@ async function fetch_coupang_Data(file_id) {
     const data = SpreadsheetApp.openById(file_id).getDataRange().getValues();
     let input_data = new Array();
     
-    for (i = 0; i < data.length - 28; i++) {
+    for (i = 0; i < (data.length - 27) / 2; i++) {
         input_data[i] = new Array();
         input_data[i][order_form.get('셀러명')] = '로켓배송';
         input_data[i][order_form.get('주문번호')] = data[9][2];
         input_data[i][order_form.get('상품주문번호')] = `${data[9][2]}-${Utilities.formatString('%02d', i + 1)}`;
-        input_data[i][order_form.get('상품코드')] = data[21 + i][2];
-        input_data[i][order_form.get('수량')] = data[21 + i][5];
+        input_data[i][order_form.get('상품코드')] = data[21 + (i * 2)][2];
+        input_data[i][order_form.get('수량')] = data[21 + (i * 2)][5];
         input_data[i][order_form.get('주문자')] = data[13][2];
         input_data[i][order_form.get('주문자연락처')] = data[13][6];
         input_data[i][order_form.get('수령인')] = data[9][7];
         input_data[i][order_form.get('수령인연락처')] = data[12][8];
-        input_data[i][order_form.get('주소')] = data[12][3];
+        input_data[i][order_form.get('주소')] = `${data[12][3]}_${data[9][2]}`;
     }
 
     return input_data;
@@ -80,13 +80,14 @@ async function fetch_Order_from_sheet() {
         if (k == '셀러명') {
             return;
         }
-        if (c.get('전용폴더ID')) {
-            const folder = DriveApp.getFolderById(c.get('전용폴더ID'));
-            const files = folder.getFilesByName(`${k}_대시보드`);
+        if (c.get('대시보드ID')) {
+            // const folder = DriveApp.getFolderById(c.get('전용폴더ID'));
+            // const files = folder.getFilesByName(`${k}_대시보드`);
             
-            if (files.hasNext()) {
-                const file = files.next();
-                const order_sheet = SpreadsheetApp.openById(file.getId()).getSheetByName('주문데이터');
+            // if (files.hasNext()) {
+                // const file = files.next();
+                // const file = DriveApp.getFileById(c.get('대시보드ID'));
+                const order_sheet = SpreadsheetApp.openById(c.get('대시보드ID')).getSheetByName('주문데이터');
                 const order = order_sheet.getDataRange().getValues();
 
                 if (order.length <= 1) {
@@ -99,7 +100,7 @@ async function fetch_Order_from_sheet() {
                 target_sheet.getRange(2, 2, order.length, 1).setNumberFormat('@').setValue(k);
 
                 order_sheet.deleteRows(2, order.length);
-            }
+            // }
         };
         return;
     });
