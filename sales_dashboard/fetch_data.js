@@ -1,7 +1,7 @@
 function Init() {
     SpreadsheetApp.getUi().createMenu('판매관리')
-    .addItem('이얍', 'fetch_Order_data')
-    .addItem('호호', 'fetch_Marketing_data')
+    .addItem('판매데이터 가져오기', 'fetch_Order_data')
+    //.addItem('호호', 'fetch_Marketing_data')
     .addToUi()
 }
 
@@ -48,22 +48,14 @@ async function fetch_Marketing_data() {
 }
 
 async function fetch_Order_data() {
+    if (SpreadsheetApp.getActiveSpreadsheet().getSheetByName('6개월주문DB').getLastRow() > 1) {
+        SpreadsheetApp.getActiveSpreadsheet().getSheetByName('6개월주문DB').deleteRows(2, SpreadsheetApp.getActiveSpreadsheet().getSheetByName('6개월주문DB').getLastRow() - 1)
+    }
+
     const ref = get_Ref()
     const today = new Date()
 
     const folder = DriveApp.getFolderById(ref.get('아카이브'))
-    let year = [today.getFullYear(), today.getFullYear()]
-    let month = [today.getMonth(), today.getMonth()]
-    month[0] -= 2;
-    if (month[0] < 0) {
-        month[0] += 12
-        year[0] -= 1
-    }
-    month[1] -= 3;
-    if (month[1] < 0) {
-        month[1] += 12
-        year[1] -= 1
-    }
     const files = folder.getFiles()
 
     let file_id = [ref.get('이번달DB'), ref.get('저번달DB')]
@@ -71,7 +63,7 @@ async function fetch_Order_data() {
     while (files.hasNext()) {
         const file = files.next()
 
-        for (i = 2; i < 6; i++) {
+        for (i = 2; i < 12; i++) {
             let year = today.getFullYear()
             let month = today.getMonth()
 
@@ -86,6 +78,9 @@ async function fetch_Order_data() {
                 break
             }
         }
+        /* if (left(file.getName(), 4) == today.getFullYear()) {
+            file_id.push(file.getId());
+        } */
     }
 
     const total = new Array();
@@ -100,9 +95,6 @@ async function fetch_Order_data() {
         })
     })
 
-    if (SpreadsheetApp.getActiveSpreadsheet().getSheetByName('6개월주문DB').getLastRow() > 1) {
-        SpreadsheetApp.getActiveSpreadsheet().getSheetByName('6개월주문DB').deleteRows(2, SpreadsheetApp.getActiveSpreadsheet().getSheetByName('6개월주문DB').getLastRow() - 1)
-    }
     SpreadsheetApp.getActiveSpreadsheet().getSheetByName('6개월주문DB').insertRowsAfter(1, total.length)
     SpreadsheetApp.getActiveSpreadsheet().getSheetByName('6개월주문DB').getRange(2, 1, total.length, total[0].length).setValues(total)
 }

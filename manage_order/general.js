@@ -7,9 +7,9 @@ function Init() {
     .createMenu('출고관리')
     .addItem('주문취합', 'fetch_Order_button')
     .addItem('주문제출', 'submit_Order_button')
-    .addItem('출고지시', 'download_general_Order')
+    .addItem('출고요청', 'download_general_Order')
     .addSeparator()
-    .addItem('커튼출고지시', 'download_curtain_Order')
+    .addItem('커튼출고요청', 'download_curtain_Order')
     .addSeparator()
     .addItem('송장입력', 'fetch_Invcoie_button')
     .addItem('송장추출', 'push_Invoice_button')
@@ -20,11 +20,13 @@ function Init() {
 }
 
 async function download_general_Order() {
-    await download_Order('굿스코아');
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    await download_Order([ss.getSheetByName('굿스코아'), ss.getSheetByName('박스풀')]);
 }
 
 async function download_curtain_Order() {
-    await download_Order('제이에스비즈');
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    await download_Order([ss.getSheetByName('제이에스비즈'), ss.getSheetByName('건인디앤씨')]);
 }
 
 async function fetch_Order_button() {

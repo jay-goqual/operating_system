@@ -63,7 +63,7 @@ async function push_Invoice() {
         }
 
         if (k == '공식몰') {row = 3;}
-        if (k == '엔분의일') {
+        if (k == '스마트스토어') {
             target.getSheetByName(k).getRange(1, 2).setValue('배송방법');
         }
 
@@ -92,7 +92,7 @@ async function send_Invoice() {
         const new_sheet = SpreadsheetApp.create(`${Utilities.formatDate(new Date(), 'GMT+9', 'yyMMdd')}_출고완료_${name}`);
         c.copyTo(new_sheet);
         new_sheet.deleteSheet(new_sheet.getSheets()[0]);
-        if (name == '엔분의일') {
+        if (name == '스마트스토어') {
             new_sheet.getSheets()[0].setName('발송처리');
         } else {
             new_sheet.getSheets()[0].setName(name);
@@ -108,12 +108,12 @@ async function send_Invoice() {
 
         // let x = create_invoice_file(response, name);
 
-        let url = null;
-        if(name == '천삼백케이') {
-            url = `https:\/\/docs.google.com\/spreadsheets\/d\/${new_sheet.getId()}\/export?format=csv`;    
+        /* if(name == '천삼백케이') {
+            url = `https:\/\/docs.google.com\/spreadsheets\/d\/${new_sheet.getId()}\/export?format=csv`;
         } else {
             url = `https:\/\/docs.google.com\/spreadsheets\/d\/${new_sheet.getId()}\/export?format=xlsx`;
-        }
+        } */
+        url = `https:\/\/docs.google.com\/spreadsheets\/d\/${new_sheet.getId()}\/export?format=xlsx`;
         const response = UrlFetchApp.fetch(url, {headers: {Authorization: `Bearer ${ScriptApp.getOAuthToken()}`}});
 
         if (client.get(name).get('출고이메일')) {
@@ -133,6 +133,9 @@ async function send_Invoice() {
                 SpreadsheetApp.openById(x.getId()).getSheets()[0].setName('발송처리');
             } */
             // console.log(x.getDownloadUrl());
+            if(name == '천삼백케이') {
+                url = `https:\/\/docs.google.com\/spreadsheets\/d\/${new_sheet.getId()}\/export?format=csv`;
+            }
             source += `<a href="${url}" target="_blank">${name}<\/a><\/br>`;
         }
     })

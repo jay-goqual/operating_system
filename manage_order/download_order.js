@@ -1,11 +1,11 @@
 var order_form = get_Order_form();
 var ref = get_Ref();
 
-async function download_Order(channel) {
+async function download_Order(channels) {
     const ss = SpreadsheetApp.getActiveSpreadsheet();
-    const channels = [ss.getSheetByName(channel)];
+    // const channels = [ss.getSheetByName(channel)];
 
-    const target = SpreadsheetApp.openById(ref.get('출고지시'));
+    const target = SpreadsheetApp.openById(ref.get('출고요청'));
     const former = target.getSheets();
     former.forEach((f, i) => {
         f.setName(i);
@@ -29,7 +29,7 @@ async function download_Order(channel) {
             }); */
 
             let temp = time.findIndex((x) => {
-                if (channel == '제이에스비즈') {
+                if (c.getName() == '제이에스비즈' || c.getName() == '건인디앤씨') {
                     return x[order_form.get('상품주문번호')] == t[1];
                 } else {
                     return x[order_form.get('상품주문번호')] == t[order_form.get('상품주문번호')];
@@ -37,7 +37,9 @@ async function download_Order(channel) {
             });
 
             if (temp && temp != -1) {
-                time[temp][order_form.get('출고지시')] = Utilities.formatDate(new Date(), 'GMT+9', 'HH:mm');
+                if ((t.length > 17 && t[17] != '굿스코아/제이에스비즈') || t.length <= 17) {
+                    time[temp][order_form.get('출고요청')] = Utilities.formatDate(new Date(), 'GMT+9', 'yy/MM/dd HH:mm');
+                }
             }
         });
     });
@@ -52,7 +54,7 @@ async function download_Order(channel) {
     });
 
     const ex = target.getSheets();
-    target.rename(`${Utilities.formatDate(new Date(), 'GMT+9', 'MMddHHmm_출고지시')}`);
+    target.rename(`${Utilities.formatDate(new Date(), 'GMT+9', 'MMddHHmm_출고요청')}`);
 
     let source = '';
     ex.forEach((x) => {
@@ -60,13 +62,26 @@ async function download_Order(channel) {
         const response = UrlFetchApp.fetch(url, {headers: {Authorization: `Bearer ${ScriptApp.getOAuthToken()}`}});
         // const convert_url = DriveApp.getFolderById(ref.get('다운로드/아카이브')).createFile(response.getBlob().setName(`${Utilities.formatDate(new Date(), 'GMT+9', 'MMddHHmm')}_${x.getSheetName()}_출고지시.xlsx`)).getDownloadUrl();
         // source += `<a href="${convert_url}" target="_blank">${x.getSheetName()}<\/a><\/br>`;
-        source += `<a href="${url}" target="_blank">${x.getSheetName()}<\/a><\/br>`;
+        if (x.getSheetName() == '제이에스비즈') {
+            MailApp.sendEmail({
+                to: 'jj-smart@naver.com',
+                cc: 'service@goqual.com',
+                subject: `[헤이홈] ${Utilities.formatDate(new Date(), 'GMT+9', 'yyMMdd')}일자 주문 내역`,
+                htmlBody: '<div dir="ltr">안녕하세요.<br>주식회사 고퀄의 커머스팀입니다.<br><br>금일 주문 접수 건 공유드립니다.<br><br>감사합니다 :)<br>헤이홈 드림.</div>',
+                //attachments: [{fileName: x.getName(), content: response.getContent()}]
+                attachments: [response.getBlob().setName(`${x.getName()}.xlsx`)]
+            });
+        } else {
+            source += `<a href="${url}" target="_blank">${x.getSheetName()}<\/a><\/br>`;
+        }
     });
 
     const html = HtmlService.createHtmlOutput(source);
     SpreadsheetApp.getUi().showModalDialog(html, '오른쪽 클릭 후 [새 탭에서 열기] 클릭');
 
     ss.getSheetByName('주문현황').getDataRange().setValues(time);
+
+    ss.getSheetByName('주문현황').getRange(2, 1, ss.getSheetByName('주문현황').getLastRow() - 1, ss.getSheetByName('주문현황').getLastColumn() - 1).sort({column: order_form.get('출고요청') + 1, ascending: false});
     
     // const target = SpreadsheetApp.openById(`1xXUAVL3S0NCytOegk52zgLAeiVU89skUyMh_hMElBwg`);
     

@@ -95,7 +95,7 @@ async function catch_Error(index, order) {
     const check = ['셀러명', '주문번호', '상품주문번호', '상품코드', '수량', '주문자', '주문자연락처', '수령인', '수령인연락처', '주소', '우편번호', '상품명', '출고채널', '택배사', '판매액', '배송비', '수수료'];
     check.forEach((c) => {
         // if (!order[order_form.get(c)] && order[order_form.get(c)] != 0) {
-        if (order[order_form.get(c)] === '') {
+        if (order[order_form.get(c)] === '' || order[order_form.get(c)] === null) {
             order[order_form.get('에러확인')] = false;
             SpreadsheetApp.getActiveSpreadsheet().getSheetByName('에러확인').getRange(index + 2, order_form.get(c) + 1).setBackground('#f4cccc');
         }
@@ -133,6 +133,11 @@ async function fetch_Additional_info() {
             o[order_form.get('상품명')] = p.get('상품명');
             if (!o[order_form.get('출고채널')]) {
                 o[order_form.get('출고채널')] = p.get('출고채널');
+                if (o[order_form.get('셀러코드')][0] == '2' && o[order_form.get('출고채널')] == '대기_커튼') {
+                    o[order_form.get('출고채널')] = '제이에스비즈';
+                } else if (o[order_form.get('셀러코드')][0] == '2' && o[order_form.get('출고채널')] == '대기_커튼천') {
+                    o[order_form.get('출고채널')] = '건인디앤씨';
+                }
                 o[order_form.get('택배사')] = delivery.get(p.get('출고채널'));
             }
             if (o[order_form.get('셀러명')] == '직접발주') {
@@ -147,7 +152,15 @@ async function fetch_Additional_info() {
             if (client_info.get('공급방식') == '고정수수료') {
                 rate = Number(client_info.get('고정수수료율'));
             } else if (client_info.get('공급방식') == '가산수수료') {
-                rate = Number(p.get('상품수수료율')) + Number(client_info.get('가산수수료율'));
+                if (p.get('가산수수료') == 'Y') {
+                    rate = Number(p.get('상품수수료율')) + Number(client_info.get('가산수수료율'));
+                } else {
+                    rate = Number(p.get('상품수수료율'));
+                }
+
+                if (client_info.get('셀러코드') == '20024') {
+                    rate = rate - 0.03;
+                }
             } else {
                 rate = Number(client_info.get('고정수수료율'));
             }
@@ -161,9 +174,17 @@ async function fetch_Additional_info() {
             }
 
             if (total.has(o[order_form.get('주문번호')])) {
-                total.set(o[order_form.get('주문번호')], total.get(o[order_form.get('주문번호')]) + o[order_form.get('판매액')]);
+                if (client_info.get('공급방식') == '공급가') {
+                    total.set(o[order_form.get('주문번호')], total.get(o[order_form.get('주문번호')]) + Number(p.get('판매가')) * Number(o[order_form.get('수량')]));
+                } else {
+                    total.set(o[order_form.get('주문번호')], total.get(o[order_form.get('주문번호')]) + o[order_form.get('판매액')]);
+                }
             } else {
-                total.set(o[order_form.get('주문번호')], o[order_form.get('판매액')]);
+                if (client_info.get('공급방식') == '공급가') {
+                    total.set(o[order_form.get('주문번호')], Number(p.get('판매가')) * Number(o[order_form.get('수량')]));
+                } else {
+                    total.set(o[order_form.get('주문번호')], o[order_form.get('판매액')]);
+                }
             }
         }
         return o;
@@ -191,7 +212,7 @@ async function fetch_Additional_info() {
 
         //결제일 양식 통일 및 변경
         let date = order_form.get('결제일');
-        if (!o[date]) {
+        if (!o[date] || isNaN(new Date(o[date]).getTime())) {
             let n;
             if (orderId[0] == 'N') {
                 n = 1;
@@ -206,6 +227,8 @@ async function fetch_Additional_info() {
                 o[date] = assume;
             }
         } else {
+            console.log('here');
+            console.log(isNaN(new Date(o[date]).getTime()));
             o[date] = new Date(o[date]);
         }
         o[date] = Utilities.formatDate(o[date], 'GMT+9', 'yyyy/MM/dd HH:mm');

@@ -25,7 +25,7 @@ async function check_Upload() {
             let new_file = DriveApp.getFileById(new_id);
 
             //주문일 경우
-            if (client.has(new_file.getName().split('_')[1])) {
+            if (client.has(new_file.getName().split('_')[1]) || new_file.getName().split('_')[0] == 'PO') {
                 await fetch_Order(new_file);
                 // check = true;
             }

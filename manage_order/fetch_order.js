@@ -14,10 +14,7 @@ async function fetch_Order(file) {
         let file = files.next(); */
     let separator = file.getName().split('_');
 
-    let client_info = client.get(separator[1]);
-    let client_form = client_info.get('업로드양식');
-    
-    if (separator[1] == '로켓배송') {
+    if (separator[1] == '로켓배송' || separator[0] == 'PO') {
         input_data = await fetch_coupang_Data(file.getId());
         target_sheet.insertRowsAfter(1, input_data.length);
         target_sheet.getRange(2, 1, input_data.length, input_data[0].length).setNumberFormat('@').setValues(input_data);
@@ -25,7 +22,12 @@ async function fetch_Order(file) {
         //아카이브로 보내버리기
         DriveApp.getFolderById(ref.get('업로드/아카이브')).addFile(file);
         file.getParents().next().removeFile(file);
+
+        return;
     }
+
+    let client_info = client.get(separator[1]);
+    let client_form = client_info.get('업로드양식');
 
     if (fetch_form.get(client_form)) {
         //let input_data: Array<Array<string>>;
@@ -58,14 +60,14 @@ async function fetch_coupang_Data(file_id) {
     
     for (i = 0; i < (data.length - 27) / 2; i++) {
         input_data[i] = new Array();
-        input_data[i][order_form.get('셀러명')] = '로켓배송';
+        input_data[i][order_form.get('셀러명')] = '쿠팡로켓배송';
         input_data[i][order_form.get('주문번호')] = data[9][2];
         input_data[i][order_form.get('상품주문번호')] = `${data[9][2]}-${Utilities.formatString('%02d', i + 1)}`;
         input_data[i][order_form.get('상품코드')] = data[21 + (i * 2)][2];
-        input_data[i][order_form.get('수량')] = data[21 + (i * 2)][5];
-        input_data[i][order_form.get('주문자')] = data[13][2];
+        input_data[i][order_form.get('수량')] = data[21 + (i * 2)][7];
+        input_data[i][order_form.get('주문자')] = `로켓배송_${data[12][2]}`;
         input_data[i][order_form.get('주문자연락처')] = data[13][6];
-        input_data[i][order_form.get('수령인')] = data[9][7];
+        input_data[i][order_form.get('수령인')] = `로켓배송_${data[12][2]}`;
         input_data[i][order_form.get('수령인연락처')] = data[12][8];
         input_data[i][order_form.get('주소')] = `${data[12][3]}_${data[9][2]}`;
     }
@@ -132,6 +134,7 @@ async function fetch_Data(file_id, form, client_info) {
             return;
         }
         input_data[index] = new Array();
+        input_data[index][15] = '';
         // input_data[index].push(Utilities.formatDate(new Date(), 'GMT+9', 'yyyy/MM/dd HH:mm'));
         input_data[index][order_form.get('셀러명')] = client_info.get('셀러명');
         // input_data[index].push(client_info.get('셀러코드'));

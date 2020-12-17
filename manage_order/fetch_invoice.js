@@ -24,7 +24,9 @@ async function fetch_Invoice(file) {
         return o;
     });
 
-    SpreadsheetApp.getActiveSpreadsheet().getSheetByName('주문현황').getDataRange().setValues(order_data);
+    let sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('주문현황')
+    sheet.getDataRange().setValues(order_data);
+    //sheet.getRange(2, 1, sheet.getLastRow() - 1, sheet.getLastColumn() - 1).sort({column: order_form.get('송장번호') + 1, ascending: true});
 
     DriveApp.getFolderById(ref.get('업로드/아카이브')).addFile(file);
     file.getParents().next().removeFile(file);
