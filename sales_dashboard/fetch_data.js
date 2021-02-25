@@ -1,6 +1,6 @@
 function Init() {
     SpreadsheetApp.getUi().createMenu('판매관리')
-    .addItem('판매데이터 가져오기', 'fetch_Order_data')
+    .addItem('판매데이터 가져오기', 'button')
     //.addItem('호호', 'fetch_Marketing_data')
     .addToUi()
 }
@@ -89,13 +89,16 @@ async function fetch_Order_data() {
         const data = SpreadsheetApp.openById(f).getSheetByName('주문').getDataRange().getValues()
 
         data.splice(0, 1)
-
-        data.forEach((d) => {
-            total.push(d)
+        data.forEach((d, i) => {
+            total.push(d);
         })
     })
 
+    return total;
+}
+
+async function button() {
+    let total = await fetch_Order_data();
     SpreadsheetApp.getActiveSpreadsheet().getSheetByName('6개월주문DB').insertRowsAfter(1, total.length)
     SpreadsheetApp.getActiveSpreadsheet().getSheetByName('6개월주문DB').getRange(2, 1, total.length, total[0].length).setValues(total)
 }
-

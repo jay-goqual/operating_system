@@ -32,7 +32,8 @@ async function archive_Data() {
     }
 
     const manage_sale = SpreadsheetApp.openById(ref.get('이번달DB')).getSheetByName('주문');
-    const sale_form = ['접수일', '셀러명', '셀러코드', '주문번호', '상품주문번호', '상품코드', '수량', '결제일', '판매액', '배송비', '수수료', '송장번호'];
+    const total = SpreadsheetApp.openById('1VM1iKCp9RkiktD_4CXfVkENmA1GLyM66de6OAt9-sg0').getSheetByName('6개월주문DB');
+    const sale_form = ['접수일', '셀러명', '셀러코드', '주문번호', '상품주문번호', '상품코드', '수량', '결제일', '판매액', '배송비', '수수료', '송장번호', '출고일시', '주문자', '수령인', '수령인연락처'];
 
     let push_table = new Array();
     let count = 0;
@@ -45,10 +46,15 @@ async function archive_Data() {
             count++;
         }
     });
-    
-    manage_sale.insertRowsAfter(1, push_table.length);
-    manage_sale.getRange(2, 1, push_table.length, sale_form.length).setValues(push_table);
 
-    data_sheet.sort(24, false);
-    data_sheet.deleteRows(2, push_table.length);
+    if (push_table.length > 0) {
+        manage_sale.insertRowsAfter(1, push_table.length);
+        manage_sale.getRange(2, 1, push_table.length, sale_form.length).setValues(push_table);
+
+        total.insertRowsAfter(1, push_table.length);
+        total.getRange(2, 1, push_table.length, sale_form.length).setValues(push_table);
+
+        data_sheet.sort(24, false);
+        data_sheet.deleteRows(2, push_table.length);
+    }
 }

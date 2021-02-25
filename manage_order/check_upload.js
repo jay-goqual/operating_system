@@ -31,7 +31,7 @@ async function check_Upload() {
             }
 
             //송장일 경우
-            if (new_file.getName().indexOf('배송출고현황') != -1 || new_file.getName().indexOf('작업 단위 목록') != -1) {
+            if (new_file.getName().indexOf('배송출고현황') != -1 || new_file.getName().indexOf('작업 단위 목록') != -1 || new_file.getName().indexOf('ShipmentReport') != -1) {
                 await fetch_Invoice(new_file);
             }
         }

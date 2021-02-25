@@ -58,7 +58,7 @@ async function fetch_coupang_Data(file_id) {
     const data = SpreadsheetApp.openById(file_id).getDataRange().getValues();
     let input_data = new Array();
     
-    for (i = 0; i < (data.length - 27) / 2; i++) {
+    for (i = 0; i < (data.length - 32) / 2; i++) {
         input_data[i] = new Array();
         input_data[i][order_form.get('셀러명')] = '쿠팡로켓배송';
         input_data[i][order_form.get('주문번호')] = data[9][2];

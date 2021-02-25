@@ -10,12 +10,17 @@ function Init() {
     .addItem('출고요청', 'download_general_Order')
     .addSeparator()
     .addItem('커튼출고요청', 'download_curtain_Order')
+    .addItem('커튼송장입력', 'fetch_curtain_button')
     .addSeparator()
     .addItem('송장입력', 'fetch_Invcoie_button')
     .addItem('송장추출', 'push_Invoice_button')
     .addItem('송장전달', 'send_Invoice_button')
     .addSeparator()
-    .addItem('출고종료', 'delete_Archive')
+    .addSubMenu(SpreadsheetApp.getUi().createMenu('CX팀')
+        .addItem('커튼확인완료', 'submit_Check')
+        .addItem('커튼주문검색', 'find_order')
+        .addItem('주문검색', 'find_order2')
+        .addItem('CS처리', 'submit_cs'))
     .addToUi();
 }
 
@@ -40,7 +45,11 @@ async function submit_Order_button() {
 }
 
 async function fetch_Invcoie_button() {
-    await check_Upload()
+    await check_Upload();
+}
+
+async function fetch_curtain_button() {
+    await fetch_Invoice_curtain();
 }
 
 async function push_Invoice_button() {

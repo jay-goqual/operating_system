@@ -18,7 +18,8 @@ async function download_Order(channels) {
             return;
         }
 
-        const table = c.getDataRange().getValues();
+        let table = c.getDataRange().getValues();
+
         target.insertSheet().setName(c.getName()).getRange(1, 1, table.length, table[0].length).setNumberFormat('@').setValues(table);
 
         table.forEach((t) => {
@@ -31,15 +32,17 @@ async function download_Order(channels) {
             let temp = time.findIndex((x) => {
                 if (c.getName() == '제이에스비즈' || c.getName() == '건인디앤씨') {
                     return x[order_form.get('상품주문번호')] == t[1];
-                } else {
+                } else if (c.getName() == '박스풀') {
+                    return x[order_form.get('상품주문번호')] == t[3];
+                }else {
                     return x[order_form.get('상품주문번호')] == t[order_form.get('상품주문번호')];
                 }
             });
 
             if (temp && temp != -1) {
-                if ((t.length > 17 && t[17] != '굿스코아/제이에스비즈') || t.length <= 17) {
+                //if ((t.length > 17 && t[17] != '굿스코아/제이에스비즈') || t.length <= 17) {
                     time[temp][order_form.get('출고요청')] = Utilities.formatDate(new Date(), 'GMT+9', 'yy/MM/dd HH:mm');
-                }
+                //}
             }
         });
     });
@@ -69,7 +72,7 @@ async function download_Order(channels) {
                 subject: `[헤이홈] ${Utilities.formatDate(new Date(), 'GMT+9', 'yyMMdd')}일자 주문 내역`,
                 htmlBody: '<div dir="ltr">안녕하세요.<br>주식회사 고퀄의 커머스팀입니다.<br><br>금일 주문 접수 건 공유드립니다.<br><br>감사합니다 :)<br>헤이홈 드림.</div>',
                 //attachments: [{fileName: x.getName(), content: response.getContent()}]
-                attachments: [response.getBlob().setName(`${x.getName()}.xlsx`)]
+                attachments: [response.getBlob().setName(`${Utilities.formatDate(new Date(), 'GMT+9', 'yyMMdd')}_${x.getName()}.xlsx`)]
             });
         } else {
             source += `<a href="${url}" target="_blank">${x.getSheetName()}<\/a><\/br>`;
