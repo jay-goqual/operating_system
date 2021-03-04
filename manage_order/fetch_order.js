@@ -104,6 +104,23 @@ async function fetch_Order_from_sheet() {
                 order_sheet.deleteRows(2, order.length);
             // }
         };
+        if (k == '직접발주') {
+            const order_sheet = SpreadsheetApp.openById('14PVHQMF13UWHnJyvYOXLdIuHptnx0C5iOJbc63LLHzs').getSheetByName('접수내역');
+            const order = order_sheet.getDataRange().setNumberFormat('@').getValues();
+
+            if (order.length <= 1) {
+                return;
+            }
+            order.splice(0, 1);
+
+            target_sheet.insertRowsAfter(1, order.length);
+            target_sheet.getRange(2, 3, order.length, order[0].length).setNumberFormat('@').setValues(order);
+            target_sheet.getRange(2, 2, order.length, 1).setNumberFormat('@').setValue('직접발주');
+
+            target_sheet.getRange(2, 4, target_sheet.getLastRow() - 1, 2).setNumberFormat('@');
+
+            order_sheet.deleteRows(2, order.length);
+        }
         return;
     });
 }

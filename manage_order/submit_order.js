@@ -26,7 +26,7 @@ async function submit_Order() {
     table.forEach((t, i) => {
         if (target_table.filter(x =>
             (x[order_form.get('주문번호')] == t[order_form.get('주문번호')] && 
-            x[order_form.get('상품주문번호')] == t[order_form.get('상품주문번호')])).length > 0) {
+            x[order_form.get('상품주문번호')].split('-')[0] == t[order_form.get('상품주문번호')].split('-')[0])).length > 0) {
                 check = true;
                 error_sheet.getRange(i + 2, 1, 1, table[0].length).setBackground('#f4cccc');
                 error_sheet.getRange(i + 2, order_form.get('에러확인') + 1).setValue(false);
@@ -40,12 +40,12 @@ async function submit_Order() {
                 error_sheet.getRange(i + 2, order_form.get('에러확인') + 1).setValue(false);
                 t[order_form.get('에러확인')] = false;
             }
-        if (postpone.filter(x => (x == t[order_form.get('주문번호')])).length > 0) {
+        /* if (postpone.filter(x => (x == t[order_form.get('주문번호')])).length > 0) {
             check = true;
             error_sheet.getRange(i + 2, 1, 1, table[0].length).setBackground('#f4cccc');
             error_sheet.getRange(i + 2, order_form.get('에러확인') + 1).setValue(false);
             t[order_form.get('에러확인')] = false;
-        }
+        } */
         /* if (total_table.filter(x =>
             (x[order_form.get('주문자')] == t[order_form.get('주문자')] &&
             x[order_form.get('수령인')] == t[order_form.get('수령인')] &&
@@ -158,16 +158,14 @@ async function fetch_Additional_info() {
             o[order_form.get('상품명')] = p.get('상품명');
             if (!o[order_form.get('출고채널')]) {
                 o[order_form.get('출고채널')] = p.get('출고채널');
-                if (o[order_form.get('셀러코드')][0] == '2' && o[order_form.get('출고채널')] == '대기_커튼') {
+                if ((o[order_form.get('셀러코드')][0] == '2' || o[order_form.get('셀러코드')] == '30007') && o[order_form.get('출고채널')] == '대기_커튼') {
                     o[order_form.get('출고채널')] = '제이에스비즈';
-                } else if (o[order_form.get('셀러코드')][0] == '2' && o[order_form.get('출고채널')] == '대기_커튼천') {
+                } else if ((o[order_form.get('셀러코드')][0] == '2' || o[order_form.get('셀러코드')] == '30007') && o[order_form.get('출고채널')] == '대기_커튼천') {
                     o[order_form.get('출고채널')] = '건인디앤씨';
                 }
                 o[order_form.get('택배사')] = delivery.get(p.get('출고채널'));
             }
-            if (o[order_form.get('셀러명')] == '직접발주') {
-                return;
-            } else {
+            if (o[order_form.get('셀러명')] != '직접발주') {
                 o[order_form.get('판매액')] = Number(p.get('판매가')) * Number(o[order_form.get('수량')]);
             }
 
@@ -177,6 +175,10 @@ async function fetch_Additional_info() {
                 total.set(o[order_form.get('주문번호')], o[order_form.get('판매액')]);
             }
             //수수료구하기
+
+            if (o[order_form.get('셀러명')] != '직접발주') {
+
+            
             let rate;
             let client_info = client.get(o[order_form.get('셀러명')]);
             if (client_info.get('공급방식') == '고정수수료') {
@@ -197,6 +199,8 @@ async function fetch_Additional_info() {
                 o[order_form.get('수수료')] = 0;
             } else {
                 o[order_form.get('수수료')] = Math.ceil((Number(p.get('판매가')) * rate) / 10) * 10 * o[order_form.get('수량')];
+            }
+
             }
 
             /* if (total.has(o[order_form.get('주문번호')])) {
@@ -253,8 +257,6 @@ async function fetch_Additional_info() {
                 o[date] = assume;
             }
         } else {
-            console.log('here');
-            console.log(isNaN(new Date(o[date]).getTime()));
             o[date] = new Date(o[date]);
         }
         o[date] = Utilities.formatDate(o[date], 'GMT+9', 'yyyy/MM/dd HH:mm');
@@ -266,7 +268,7 @@ async function fetch_Additional_info() {
             num = 0;
         } */
 
-        if (order.filter(x => x[order_form.get('상품주문번호')] == o[order_form.get('상품주문번호')]).length > 1) {
+        if (order.filter(x => x[order_form.get('상품주문번호')].split('-')[0] == o[order_form.get('상품주문번호')]).length > 1) {
             num++;
         } else {
             num = 0;

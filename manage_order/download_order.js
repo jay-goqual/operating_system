@@ -33,7 +33,7 @@ async function download_Order(channels) {
                 if (c.getName() == '제이에스비즈' || c.getName() == '건인디앤씨') {
                     return x[order_form.get('상품주문번호')] == t[1];
                 } else if (c.getName() == '박스풀') {
-                    return x[order_form.get('상품주문번호')] == t[3];
+                    return x[order_form.get('상품주문번호')] == t[4];
                 }else {
                     return x[order_form.get('상품주문번호')] == t[order_form.get('상품주문번호')];
                 }

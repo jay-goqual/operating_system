@@ -22,7 +22,7 @@ async function fetch_Invoice(file) {
             //find = invoice_data.filter(d => (d[invoice_form.get('주문번호')] == o[order_form.get('상품주문번호')]) && d[invoice_form.get('출고상태')] == '확정');
             find = invoice_data.filter(d => (d[invoice_form.get('주문번호')] == o[order_form.get('상품주문번호')]));
         } else {
-            find = invoice_data.filter(d => (d[invoice_form.get('주문번호')] == o[order_form.get('상품주문번호')]));
+            find = invoice_data.filter(d => (d[invoice_form.get('주문번호')] == o[order_form.get('주문번호')]));
         }
         if (find.length > 0) {
             o[order_form.get('송장번호')] = find[0][invoice_form.get('송장번호')];
