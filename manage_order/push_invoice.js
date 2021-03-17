@@ -85,6 +85,9 @@ async function send_Invoice() {
     const ss = SpreadsheetApp.openById(ref.get('송장저장'));
     const channel = ss.getSheets();
 
+    const check_sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('발주체크');
+    const check_data = check_sheet.getDataRange().getValues();
+
     let source = new String();
 
     channel.forEach((c) => {
@@ -97,6 +100,8 @@ async function send_Invoice() {
         } else {
             new_sheet.getSheets()[0].setName(name);
         }
+
+        check_data[check_data.findIndex((v) => v[0] == name)][2]++;
         
         DriveApp.getFolderById(ref.get('다운로드/아카이브')).addFile(DriveApp.getFileById(new_sheet.getId()));
         DriveApp.getRootFolder().removeFile(DriveApp.getFileById(new_sheet.getId()));
@@ -139,6 +144,8 @@ async function send_Invoice() {
             source += `<a href="${url}" target="_blank">${name}<\/a><\/br>`;
         }
     })
+
+    check_sheet.getDataRange().setValues(check_data);
 
     if (source.length > 0) {
         const html = HtmlService.createHtmlOutput(source);

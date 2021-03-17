@@ -158,9 +158,9 @@ async function fetch_Additional_info() {
             o[order_form.get('상품명')] = p.get('상품명');
             if (!o[order_form.get('출고채널')]) {
                 o[order_form.get('출고채널')] = p.get('출고채널');
-                if ((o[order_form.get('셀러코드')][0] == '2' || o[order_form.get('셀러코드')] == '30007') && o[order_form.get('출고채널')] == '대기_커튼') {
+                if ((o[order_form.get('셀러코드')][0] == '2' || o[order_form.get('셀러코드')] == '30007' || o[order_form.get('셀러명')] == '직접발주') && o[order_form.get('출고채널')] == '대기_커튼') {
                     o[order_form.get('출고채널')] = '제이에스비즈';
-                } else if ((o[order_form.get('셀러코드')][0] == '2' || o[order_form.get('셀러코드')] == '30007') && o[order_form.get('출고채널')] == '대기_커튼천') {
+                } else if ((o[order_form.get('셀러코드')][0] == '2' || o[order_form.get('셀러코드')] == '30007' || o[order_form.get('셀러명')] == '직접발주') && o[order_form.get('출고채널')] == '대기_커튼천') {
                     o[order_form.get('출고채널')] = '건인디앤씨';
                 }
                 o[order_form.get('택배사')] = delivery.get(p.get('출고채널'));
@@ -268,13 +268,28 @@ async function fetch_Additional_info() {
             num = 0;
         } */
 
-        if (order.filter(x => x[order_form.get('상품주문번호')].split('-')[0] == o[order_form.get('상품주문번호')]).length > 1) {
-            num++;
+        if (i > 0) {
+            if (order.filter(x => x[order_form.get('상품주문번호')] == o[order_form.get('상품주문번호')]).length > 1) {
+                if (o[order_form.get('상품주문번호')].indexOf(order[i - 1][order_form.get('상품주문번호')].split('-')[0]) > -1) {
+                    num++;
+                } else {
+                    num = 1;
+                }
+            } else {
+                if (o[order_form.get('상품주문번호')].indexOf(order[i - 1][order_form.get('상품주문번호')].split('-')[0]) > -1) {
+                    num++;
+                } else {
+                    num = 0;
+                }
+            }    
         } else {
-            num = 0;
+            if (order.filter(x => x[order_form.get('상품주문번호')] == o[order_form.get('상품주문번호')]).length > 1) {
+                num++;
+            }
         }
 
-        if (num > 0 && (o[order_form.get('셀러명')] == '직접발주' || o[order_form.get('셀러명')] == '씨씨티비프렌즈' || o[order_form.get('셀러명')] == '나혼자살림' || o[order_form.get('셀러명')] == '도치퀸' || o[order_form.get('셀러명')] == '오늘의집')) {
+
+        if (num > 0 && (o[order_form.get('셀러명')] == '직접발주' || o[order_form.get('셀러명')] == '씨씨티비프렌즈' || o[order_form.get('셀러명')] == '나혼자살림' || o[order_form.get('셀러명')] == '도치퀸' || o[order_form.get('셀러명')] == '오늘의집' || o[order_form.get('셀러명')] == '쿠팡마켓플레이스')) {
             o[order_form.get('상품주문번호')] = `${o[order_form.get('상품주문번호')]}-${Utilities.formatString('%02d', num)}`;
         }
 

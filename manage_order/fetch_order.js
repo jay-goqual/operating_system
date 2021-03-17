@@ -9,6 +9,8 @@ async function fetch_Order(file) {
     //const files: any = DriveApp.getFolderById(ref.get('업로드')).getFilesByType(MimeType.GOOGLE_SHEETS);
 
     const target_sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('에러확인');
+    const check_sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('발주체크');
+    const check_data = check_sheet.getDataRange().getValues();
 
     /* while (files.hasNext()){
         let file = files.next(); */
@@ -23,6 +25,8 @@ async function fetch_Order(file) {
         DriveApp.getFolderById(ref.get('업로드/아카이브')).addFile(file);
         file.getParents().next().removeFile(file);
 
+        check_data[check_data.findIndex((v) => v[0] == '로켓배송')][1]++;
+        check_sheet.getDataRange().setValues(check_data);
         return;
     }
 
@@ -50,6 +54,9 @@ async function fetch_Order(file) {
         //아카이브로 보내버리기
         DriveApp.getFolderById(ref.get('업로드/아카이브')).addFile(file);
         file.getParents().next().removeFile(file);
+
+        check_data[check_data.findIndex((v) => v[0] == separator[1])][1]++;
+        check_sheet.getDataRange().setValues(check_data);
     }
     //}
 }
@@ -77,6 +84,9 @@ async function fetch_coupang_Data(file_id) {
 
 async function fetch_Order_from_sheet() {
     const target_sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('에러확인');
+
+    const check_sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('발주체크');
+    const check_data = check_sheet.getDataRange().getValues();
     
     client.forEach((c, k) => {
         if (k == '셀러명') {
@@ -102,6 +112,8 @@ async function fetch_Order_from_sheet() {
                 target_sheet.getRange(2, 2, order.length, 1).setNumberFormat('@').setValue(k);
 
                 order_sheet.deleteRows(2, order.length);
+
+                check_data[check_data.findIndex((v) => v[0] == k)][1]++;
             // }
         };
         if (k == '직접발주') {
@@ -120,9 +132,13 @@ async function fetch_Order_from_sheet() {
             target_sheet.getRange(2, 4, target_sheet.getLastRow() - 1, 2).setNumberFormat('@');
 
             order_sheet.deleteRows(2, order.length);
+
+            check_data[check_data.findIndex((v) => v[0] == k)][1]++;
         }
         return;
     });
+
+    check_sheet.getDataRange().setValues(check_data);
 }
 
 async function set_Format(id, format) {

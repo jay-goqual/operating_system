@@ -6,10 +6,15 @@ async function fetch_Invoice(file) {
     const invoice_data = SpreadsheetApp.openById(file.getId()).getDataRange().getValues();
     const order_data = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('주문현황').getDataRange().getValues();
 
+    const check_sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('발주체크');
+    const check_data = check_sheet.getDataRange().getValues();
+
     let invoice_form = new Map();
     invoice_data[0].forEach((d, i) => {
         invoice_form.set(d, i);
     });
+
+    let check = 0;
 
     invoice_data.splice(0, 1);
 
@@ -21,8 +26,10 @@ async function fetch_Invoice(file) {
         if (invoice_form.get('출고상태')) {
             //find = invoice_data.filter(d => (d[invoice_form.get('주문번호')] == o[order_form.get('상품주문번호')]) && d[invoice_form.get('출고상태')] == '확정');
             find = invoice_data.filter(d => (d[invoice_form.get('주문번호')] == o[order_form.get('상품주문번호')]));
+            check = 1;
         } else {
             find = invoice_data.filter(d => (d[invoice_form.get('주문번호')] == o[order_form.get('주문번호')]));
+            check = 2;
         }
         if (find.length > 0) {
             o[order_form.get('송장번호')] = find[0][invoice_form.get('송장번호')];
@@ -35,6 +42,14 @@ async function fetch_Invoice(file) {
 
     let sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('주문현황')
     sheet.getDataRange().setValues(order_data);
+
+    if (check == 1) {
+        check_data[1][5]++;
+    } else if (check == 2) {
+        check_data[2][5]++;
+    }
+    check_sheet.getDataRange().setValues(check_data);
+
     //sheet.getRange(2, 1, sheet.getLastRow() - 1, sheet.getLastColumn() - 1).sort({column: order_form.get('송장번호') + 1, ascending: true});
 
     DriveApp.getFolderById(ref.get('업로드/아카이브')).addFile(file);
@@ -64,4 +79,10 @@ async function fetch_Invoice_curtain() {
 
     dashboard.getSheetByName('송장번호 전달').getRange(2, 6, dashboard.getSheetByName('송장번호 전달').getLastRow() - 1, 1).clear();
     dashboard.getSheetByName('송장번호 전달').getRange(2, 6, dashboard.getSheetByName('송장번호 전달').getLastRow() - 1, 1).clearFormat();
+
+    const check_sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('발주체크');
+    const check_data = check_sheet.getDataRange().getValues();
+
+    check_data[3][5]++;
+    check_sheet.getDataRange().setValues(check_data);
 }
