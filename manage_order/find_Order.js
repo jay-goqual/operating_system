@@ -35,7 +35,7 @@ async function find_order() {
 
 async function find_order2() {
     const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-    if (sheet.getName().indexOf('이전주문검색') == -1) {
+    if (sheet.getName().indexOf('검색') == -1) {
         return;
     }
 
@@ -49,7 +49,7 @@ async function find_order2() {
     
     const find_sheet = SpreadsheetApp.openById('1LzKdF7futwfIw_bw1tfko36TRQ86Yf-9jdjNPZQCdac').getSheetByName(sheet.getName());
 
-    sheet.getRange(6, 1, 95, 20).clear().setNumberFormat('@');
+    sheet.getRange(6, 1, 95, 14).clear().setNumberFormat('@');
 
     find_sheet.getRange(1, 1).setValue(name);
     find_sheet.getRange(1, 2).setValue(phone);
@@ -77,7 +77,7 @@ async function find_order2() {
     }); */
 
     if (result.length > 0) {
-        sheet.getRange(6, 1, result.length, 13).setValues(result);
+        sheet.getRange(6, 1, result.length, 14).setValues(result);
     }
 }
 

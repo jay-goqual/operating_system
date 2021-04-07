@@ -25,7 +25,7 @@ async function fetch_Order(file) {
         DriveApp.getFolderById(ref.get('업로드/아카이브')).addFile(file);
         file.getParents().next().removeFile(file);
 
-        check_data[check_data.findIndex((v) => v[0] == '로켓배송')][1]++;
+        check_data[check_data.findIndex((v) => v[0] == '쿠팡로켓배송')][1]++;
         check_sheet.getDataRange().setValues(check_data);
         return;
     }

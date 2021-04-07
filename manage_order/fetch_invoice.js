@@ -36,6 +36,9 @@ async function fetch_Invoice(file) {
             if (o[order_form.get('택배사')] == '2 - 롯데택배') {
                 o[order_form.get('택배사')] = '롯데택배'
             }
+            if (o[order_form.get('택배사')] == '3 - CJ택배') {
+                o[order_form.get('택배사')] = 'CJ대한통운'
+            }
         }
         return o;
     });
