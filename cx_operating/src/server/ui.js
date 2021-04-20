@@ -17,8 +17,8 @@ export const openDialog = () => {
 
 export const openDialogBootstrap = () => {
   const html = HtmlService.createHtmlOutputFromFile('dialog-demo-bootstrap')
-    .setWidth(600)
-    .setHeight(600);
+    .setWidth(1600)
+    .setHeight(800);
   SpreadsheetApp.getUi().showModalDialog(html, 'Sheet Editor (Bootstrap)');
 };
 

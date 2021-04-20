@@ -10,3 +10,5 @@ global.getSheetsData = publicSheetFunctions.getSheetsData;
 global.addSheet = publicSheetFunctions.addSheet;
 global.deleteSheet = publicSheetFunctions.deleteSheet;
 global.setActiveSheet = publicSheetFunctions.setActiveSheet;
+
+global.findOrder = publicSheetFunctions.findOrder;

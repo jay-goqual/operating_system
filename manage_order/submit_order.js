@@ -167,6 +167,10 @@ async function fetch_Additional_info() {
             }
             if (o[order_form.get('셀러명')] != '직접발주') {
                 o[order_form.get('판매액')] = Number(p.get('판매가')) * Number(o[order_form.get('수량')]);
+                if (o[order_form.get('셀러명')] == '공식몰' && o[order_form.get('상품코드')].indexOf('CF201') > -1) {
+                    width = o[order_form.get('옵션정보')].split(' / ')[4].split(' : ')[1].split('폭')[0];
+                    o[order_form.get('판매액')] = o[order_form.get('판매액')] * width;
+                }
             }
 
             if (total.has(o[order_form.get('주문번호')])) {
@@ -289,7 +293,7 @@ async function fetch_Additional_info() {
         }
 
 
-        if (num > 0 && (o[order_form.get('셀러명')] == '직접발주' || o[order_form.get('셀러명')] == '씨씨티비프렌즈' || o[order_form.get('셀러명')] == '나혼자살림' || o[order_form.get('셀러명')] == '도치퀸' || o[order_form.get('셀러명')] == '오늘의집' || o[order_form.get('셀러명')] == '쿠팡마켓플레이스')) {
+        if (num > 0 && (o[order_form.get('셀러명')] == '직접발주' || o[order_form.get('셀러명')] == '씨씨티비프렌즈' || o[order_form.get('셀러명')] == '나혼자살림' || o[order_form.get('셀러명')] == '도치퀸' || o[order_form.get('셀러명')] == '오늘의집' || o[order_form.get('셀러명')] == '쿠팡마켓플레이스' || o[order_form.get('셀러명')] == '프리스비')) {
             o[order_form.get('상품주문번호')] = `${o[order_form.get('상품주문번호')]}-${Utilities.formatString('%02d', num)}`;
         }
 

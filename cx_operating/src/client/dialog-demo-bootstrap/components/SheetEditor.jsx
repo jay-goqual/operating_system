@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
-import { Button, ListGroup } from 'react-bootstrap';
+import { Table, Button, ListGroup } from 'react-bootstrap';
 import FormInput from './FormInput.tsx';
 
 // This is a wrapper for google.script.run that lets us use promises.
@@ -9,9 +9,18 @@ import server from '../../utils/server';
 const { serverFunctions } = server;
 
 const SheetEditor = () => {
-  const [names, setNames] = useState([]);
+  const [data, setData] = useState([]);
 
-  useEffect(() => {
+  const findOrder = async input => {
+    try {
+        const response = await serverFunctions.findOrder(input);
+        setData(response);
+    } catch (error) {
+        alert(error);
+    }
+  };
+
+  /* useEffect(() => {
     serverFunctions
       .getSheetsData()
       .then(setNames)
@@ -40,7 +49,7 @@ const SheetEditor = () => {
       // eslint-disable-next-line no-alert
       alert(error);
     }
-  };
+  }; */
 
   return (
     <div style={{ padding: '3px', overflowX: 'hidden' }}>
@@ -54,8 +63,8 @@ const SheetEditor = () => {
         <span className="text-danger">&times;</span> next to the sheet name to
         delete it.
       </p>
-      <FormInput submitNewSheet={submitNewSheet} />
-      <ListGroup>
+      <FormInput findOrder={findOrder} />
+      {/* <ListGroup>
         <TransitionGroup className="sheet-list">
           {names.length > 0 &&
             names.map(name => (
@@ -87,7 +96,42 @@ const SheetEditor = () => {
               </CSSTransition>
             ))}
         </TransitionGroup>
-      </ListGroup>
+      </ListGroup> */}
+        {/* <ListGroup>
+            <TransitionGroup className="orderList">
+                {data.length > 0 &&
+                    data.map(order => (
+                    <CSSTransition
+                        classNames="sheetNames"
+                        timeout={500}
+                        key={order.order_uid}
+                    >
+                        <ListGroup.Item
+                            className="d-flex"
+                            key={order.order_uid}
+                        >
+                            {order}
+                        </ListGroup.Item>
+                    </CSSTransition>
+                ))}
+          </TransitionGroup>
+      </ListGroup> */}
+        <div class="table-container">
+        <Table striped bordered hover responsive size="sm">
+            <tbody>
+                {data.length > 0 &&
+                    Object.keys(data).map((k) => (
+                        <tr key={`${k}`}>
+                            {Object.keys(data[k]).map((kk) => (
+                                <td key={`${k}-${kk}`}>
+                                    {data[k][kk]}
+                                </td>
+                            ))}
+                        </tr>
+                    ))}
+            </tbody>
+        </Table>
+        </div>
     </div>
   );
 };

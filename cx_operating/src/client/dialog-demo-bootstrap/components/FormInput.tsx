@@ -2,26 +2,29 @@ import React, { useState, ChangeEvent, FormEvent } from 'react';
 import { Form, Button, Col, Row } from 'react-bootstrap';
 
 interface FormInputProps {
-  submitNewSheet: (
-    sheetName: string
+  findOrder: (
+    input: string
   ) => {
+
+  };
+  /* ) => {
     name: string;
     index: number;
     isActive: boolean;
-  };
+  }; */
 }
 
-const FormInput = ({ submitNewSheet }: FormInputProps) => {
-  const [newSheetName, setNewSheetName] = useState('');
+const FormInput = ({ findOrder }: FormInputProps) => {
+  const [input, setInput] = useState('');
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) =>
-    setNewSheetName(event.target.value);
+    setInput(event.target.value);
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (newSheetName.length === 0) return;
-    submitNewSheet(newSheetName);
-    setNewSheetName('');
+    if (input.length === 0) return;
+    findOrder(input);
+    setInput('');
   };
 
   return (
@@ -33,7 +36,7 @@ const FormInput = ({ submitNewSheet }: FormInputProps) => {
             <Form.Control
               type="text"
               placeholder="Sheet name"
-              value={newSheetName}
+              value={input}
               onChange={handleChange}
             />
           </Col>

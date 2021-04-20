@@ -27,3 +27,28 @@ CSSTransitionGroup styling
   opacity: 1;
   transition: opacity 0.5ms ease-in;
 }
+
+/* table {
+    border-collapse: collapse;
+    overflow-x: scroll;
+    width: 100%;
+}
+
+table tbody {
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
+
+table th td{
+    overflow: hidden;
+    text-overflow: ellipsis;
+} */
+
+.table-container {
+    overflow: auto;
+}
+
+table td {
+    max-height: 10px;
+    overflow: hidden;
+}

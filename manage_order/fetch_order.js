@@ -151,6 +151,7 @@ async function fetch_Data(file_id, form, client_info) {
     //데이터 가져오기
     const orig_data = SpreadsheetApp.openById(file_id).getDataRange().getValues();
     orig_data.splice(0, 1);
+    Logger.log(orig_data);
 
     //input_data 만들기
     let input_data = new Array();
