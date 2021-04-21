@@ -34,7 +34,7 @@ export const setActiveSheet = sheetName => {
 
 export const findOrder = input => {
     const url = 'https://docs.google.com/spreadsheets/d/1LzKdF7futwfIw_bw1tfko36TRQ86Yf-9jdjNPZQCdac/gviz/tq?gid=0&tq=';
-    const query = `select A, B, D, E, H, I, J, K, L, M, F, Q, G, O where H contains '${input}'`;
+    const query = `select A, B, D, E, H, I, J, K, L, M, F, Q, G, O where H contains '${input}' or J contains '${input}'`;
 
     const response = UrlFetchApp.fetch(url + query, {headers: {Authorization: "Bearer " + ScriptApp.getOAuthToken()}});
     const clean = response.getContentText();

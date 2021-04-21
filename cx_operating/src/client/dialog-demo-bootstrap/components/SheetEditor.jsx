@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
-import { Table, Button, ListGroup } from 'react-bootstrap';
+import { Table, Button, ListGroup, Form, ToggleButton } from 'react-bootstrap';
 import FormInput from './FormInput.tsx';
 
 // This is a wrapper for google.script.run that lets us use promises.
@@ -10,13 +10,59 @@ const { serverFunctions } = server;
 
 const SheetEditor = () => {
   const [data, setData] = useState([]);
+  const [check, setCheck] = useState([]);
 
   const findOrder = async input => {
     try {
         const response = await serverFunctions.findOrder(input);
+        /* let c = {};
+        response.map((v, i) => {
+            c[i] = false;
+        }); */
         setData(response);
+        // setCheck(c);
     } catch (error) {
         alert(error);
+    }
+  };
+
+  const list_header = {
+      'date_receipt': '접수일',
+      'seller_name': '판매처',
+      'order_id': '주문번호',
+      'order_uid': '상품주문번호',
+      'order_name': '주문자',
+      'order_phone': '연락처',
+      'customer_name': '수취인',
+      'customer_phone': '연락처',
+      'customer_address': '주소',
+      'customer_zipcode': '우편번호',
+      'product_code': '상품코드',
+      'product_name': '상품명',
+      'product_num': '수량',
+      'order_option': '옵션'
+  };
+
+  const handleSubmit = () => {
+      Object.keys(check).map((v, i) => {
+          alert(check[v]);
+      })
+  };
+
+  const handleChecked = key => {
+    //   alert(key);
+      let temp = check;
+      temp[key] = !temp[key];
+      setCheck(temp);
+    //   alert(check[key]);
+  };
+
+  const handleSingleCheck = (checked, id) => {
+    if (checked) {
+      setCheck([...check, id]);
+    } else {
+      // 체크 해제
+      setCheck(check.filter((el) => el !== id));
     }
   };
 
@@ -116,22 +162,50 @@ const SheetEditor = () => {
                 ))}
           </TransitionGroup>
       </ListGroup> */}
-        <div class="table-container">
-        <Table striped bordered hover responsive size="sm">
+        <Table striped bordered hover size="sm">
+            <thead>
+                <tr>
+                    <th className='check'>
+                        <div className='data_div'>
+                            <Form.Check type="checkbox" checked="true" disabled />
+                        </div>
+                    </th>
+                    {Object.keys(list_header).map((k) => (
+                        <th className={k}>
+                            <div className='data_div'>
+                                {list_header[k]}
+                            </div>
+                        </th>
+                    ))}
+                </tr>
+            </thead>
             <tbody>
                 {data.length > 0 &&
-                    Object.keys(data).map((k) => (
-                        <tr key={`${k}`}>
-                            {Object.keys(data[k]).map((kk) => (
+                    Object.keys(data).map((key) => (
+                        <tr>
+                            <td className='check'>
+                                <Form.Check type="checkbox" onChange={(e) => handleSingleCheck(e.target.checked, key)} checked={check.includes(key) ? true : false} />
+                                {/* <ToggleButton type="checkbox" checked={check[key]} onClick={handleChecked(key)} /> */}
+                            </td>
+                            {Object.keys(list_header).map((k) => (
+                                <td className={k}>
+                                    <div className='data_div'>
+                                        {data[key][k]}
+                                    </div>
+                                </td>
+                            ))}
+                            {/* {Object.keys(data[k]).map((kk) => (
                                 <td key={`${k}-${kk}`}>
                                     {data[k][kk]}
                                 </td>
-                            ))}
+                            ))} */}
                         </tr>
                     ))}
             </tbody>
         </Table>
-        </div>
+        <Button variant="primary" type="submit" onClick={handleSubmit}>
+            제출
+        </Button>
     </div>
   );
 };
