@@ -12,3 +12,4 @@ global.deleteSheet = publicSheetFunctions.deleteSheet;
 global.setActiveSheet = publicSheetFunctions.setActiveSheet;
 
 global.findOrder = publicSheetFunctions.findOrder;
+global.getProducts = publicSheetFunctions.getProducts;

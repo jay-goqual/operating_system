@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
-import { Table, Button, ListGroup, Form, ToggleButton } from 'react-bootstrap';
+import { Spinner, Table, Button, ListGroup, Form, ToggleButton } from 'react-bootstrap';
 import FormInput from './FormInput.tsx';
 
 // This is a wrapper for google.script.run that lets us use promises.
@@ -11,15 +11,18 @@ const { serverFunctions } = server;
 const SheetEditor = () => {
   const [data, setData] = useState([]);
   const [check, setCheck] = useState([]);
+  const [searching, setSearching] = useState([]);
 
   const findOrder = async input => {
     try {
+        setSearching(true);
         const response = await serverFunctions.findOrder(input);
         /* let c = {};
         response.map((v, i) => {
             c[i] = false;
         }); */
         setData(response);
+        setSearching(false);
         // setCheck(c);
     } catch (error) {
         alert(error);
@@ -43,18 +46,12 @@ const SheetEditor = () => {
       'order_option': '옵션'
   };
 
+  const cs_type = ['단순반품', '보상반품', '교환', '재작업', '재발송'];
+
   const handleSubmit = () => {
       Object.keys(check).map((v, i) => {
           alert(check[v]);
       })
-  };
-
-  const handleChecked = key => {
-    //   alert(key);
-      let temp = check;
-      temp[key] = !temp[key];
-      setCheck(temp);
-    //   alert(check[key]);
   };
 
   const handleSingleCheck = (checked, id) => {
@@ -66,14 +63,11 @@ const SheetEditor = () => {
     }
   };
 
-  /* useEffect(() => {
-    serverFunctions
-      .getSheetsData()
-      .then(setNames)
-      .catch(alert);
+  useEffect(() => {
+    setSearching(false);
   }, []);
 
-  const deleteSheet = sheetIndex => {
+  /* const deleteSheet = sheetIndex => {
     serverFunctions
       .deleteSheet(sheetIndex)
       .then(setNames)
@@ -162,50 +156,60 @@ const SheetEditor = () => {
                 ))}
           </TransitionGroup>
       </ListGroup> */}
+      {searching ? 
+        <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+            <Spinner animation="border" role="status" />
+        </div> :
+        <div>
         <Table striped bordered hover size="sm">
             <thead>
                 <tr>
-                    <th className='check'>
-                        <div className='data_div'>
+                <th className='check'>
+                    <div className='data_div'>
+                        <Form>
                             <Form.Check type="checkbox" checked="true" disabled />
+                        </Form>
+
+                    </div>
+                </th>
+                {Object.keys(list_header).map((k) => (
+                    <th className={k}>
+                        <div className='data_div'>
+                            {list_header[k]}
                         </div>
                     </th>
-                    {Object.keys(list_header).map((k) => (
-                        <th className={k}>
-                            <div className='data_div'>
-                                {list_header[k]}
-                            </div>
-                        </th>
-                    ))}
-                </tr>
-            </thead>
-            <tbody>
-                {data.length > 0 &&
-                    Object.keys(data).map((key) => (
-                        <tr>
-                            <td className='check'>
+                ))}
+            </tr>
+        </thead>
+        <tbody>
+            {data.length > 0 &&
+                Object.keys(data).map((key) => (
+                    <tr>
+                        <td className='check'>
+                            <Form>
                                 <Form.Check type="checkbox" onChange={(e) => handleSingleCheck(e.target.checked, key)} checked={check.includes(key) ? true : false} />
-                                {/* <ToggleButton type="checkbox" checked={check[key]} onClick={handleChecked(key)} /> */}
+                            </Form>
+                            {/* <ToggleButton type="checkbox" checked={check[key]} onClick={handleChecked(key)} /> */}
+                        </td>
+                        {Object.keys(list_header).map((k) => (
+                            <td className={k}>
+                                <div className='data_div'>
+                                    {data[key][k]}
+                                </div>
                             </td>
-                            {Object.keys(list_header).map((k) => (
-                                <td className={k}>
-                                    <div className='data_div'>
-                                        {data[key][k]}
-                                    </div>
-                                </td>
-                            ))}
-                            {/* {Object.keys(data[k]).map((kk) => (
-                                <td key={`${k}-${kk}`}>
-                                    {data[k][kk]}
-                                </td>
-                            ))} */}
-                        </tr>
-                    ))}
-            </tbody>
-        </Table>
-        <Button variant="primary" type="submit" onClick={handleSubmit}>
-            제출
-        </Button>
+                        ))}
+                    </tr>
+                ))
+            }
+        </tbody>
+    </Table>
+    <Button variant="primary" type="submit" onClick={handleSubmit}>
+        제출
+    </Button>
+    </div>
+
+      }
+        
     </div>
   );
 };

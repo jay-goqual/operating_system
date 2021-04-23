@@ -57,6 +57,25 @@ export const findOrder = input => {
         });
     });
 
-    Logger.log(r);
+    return r;
+}
+
+export const getProducts = () => {
+    const url = 'https://docs.google.com/spreadsheets/d/15synu29SBTNokGJCx2JUbkCnmVEhDbY-EO6TV3Yrs48/gviz/tq?gid=19362399&tq=';
+    const query = `select A, B where N = 'all' or N = '10001'`;
+
+    const response = UrlFetchApp.fetch(url + query, {headers: {Authorization: "Bearer " + ScriptApp.getOAuthToken()}});
+    const clean = response.getContentText();
+
+    const t = clean.substring(47, clean.length - 2);
+    const temp = JSON.parse(t);
+
+    const r = new Array();
+    temp.table.rows.forEach((k, i) => {
+        r.push({});
+        r[i] = {value: k.c[0].v, label: k.c[1].v}
+    });
+
+    console.log(r);
     return r;
 }

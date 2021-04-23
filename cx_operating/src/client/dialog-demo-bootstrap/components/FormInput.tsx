@@ -35,13 +35,14 @@ const FormInput = ({ findOrder }: FormInputProps) => {
           <Col xs={10}>
             <Form.Control
               type="text"
-              placeholder="Sheet name"
+              placeholder="성함"
+              size='sm'
               value={input}
               onChange={handleChange}
             />
           </Col>
           <Col xs={2}>
-            <Button variant="primary" type="submit">
+            <Button variant="primary" type="submit" size='sm'>
               Submit
             </Button>
           </Col>

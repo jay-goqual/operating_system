@@ -48,6 +48,11 @@ table th td{
     overflow-x: auto;
 } */
 
+.title {
+    font-size: 14px;
+    font-weight: bold;
+}
+
 table {
     text-align: center;
     font-size: 12px;
@@ -108,7 +113,7 @@ th, td {
     width: 100px;
 }
 .product_num {
-    width: 30px;
+    width: 35px;
 }
 .order_option {
     width: 50px;
