@@ -112,7 +112,7 @@ export const pushOrder = () => {
     getInputsheet().getRange(3, 2).setNumberFormat('@').setValue('');
     getInputsheet().getRange(3, 4, 25, 7).setNumberFormat('@').setValue('');
     getInputsheet().getRange(3, 12, 25, 1).setNumberFormat('@').setValue('');
-    getInputsheet().getRange(3, 15, 25, 2).setValue('');
+    getInputsheet().getRange(3, 14, 25, 3).setValue('');
     getInputsheet().getRange(3, 18, 25, 1).setNumberFormat('@').setValue('');
 }
 

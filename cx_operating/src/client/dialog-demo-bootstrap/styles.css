@@ -48,6 +48,11 @@ table th td{
     overflow-x: auto;
 } */
 
+.tableWrap {
+    max-height: 450px;
+    overflow-y: auto;
+}
+
 .title {
     font-size: 14px;
     font-weight: bold;
@@ -59,34 +64,43 @@ table {
 }
 
 td, th {
-    height: 32px;
+    height: 40px;
+    max-height: 40px;
+    /* max-width: 100px; */
 }
 
 .data_div {
-    overflow-y: scroll;
+    /* overflow-y: scroll; */
+    overflow-x: auto;
+    overflow-y: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: 100%;
     height: 100%;
 }
 
-th, td {
-    max-width: 100px;
+th {
+    font-size: 12px !important;
 }
 
 .check {
     width: 40px;
 }
 .date_receipt {
-    width: 75px;
+    width: 90px;
 }
 .seller_name {
-    width: 75px;
+    width: 90px;
 }
 .order_id {
-    width: 100px;
+    width: 90px;
+    font-size: 10px;
     /* font-size: 8px; */
 }
 .order_uid {
-    width: 100px;
+    width: 90px;
+    font-size: 10px;
 }
 .order_name {
     width: 75px;
@@ -103,6 +117,11 @@ th, td {
 .customer_address {
     width: 200px;
 }
+
+.customer_address .data_div {
+    align-items: unset !important;
+}
+
 .customer_zipcode {
     width: 75px;
 }
@@ -112,11 +131,19 @@ th, td {
 .product_name {
     width: 100px;
 }
+
+.product_name .data_div {
+    align-items: unset !important;
+}
 .product_num {
-    width: 35px;
+    width: 50px;
 }
 .order_option {
     width: 50px;
+}
+
+.order_option .data_div {
+    align-items: unset !important;
 }
 
 /* table tr {

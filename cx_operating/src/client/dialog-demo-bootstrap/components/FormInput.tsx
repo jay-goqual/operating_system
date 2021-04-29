@@ -30,7 +30,6 @@ const FormInput = ({ findOrder }: FormInputProps) => {
   return (
     <Form onSubmit={handleSubmit}>
       <Form.Group controlId="formNewSheet">
-        <Form.Label>Add a new sheet</Form.Label>
         <Row>
           <Col xs={10}>
             <Form.Control
@@ -47,12 +46,6 @@ const FormInput = ({ findOrder }: FormInputProps) => {
             </Button>
           </Col>
         </Row>
-        <Form.Text className="text-muted">
-          Enter the name for your new sheet.
-        </Form.Text>
-        <Form.Text className="text-muted">
-          <i>This component is written in typescript!</i>
-        </Form.Text>
       </Form.Group>
     </Form>
   );

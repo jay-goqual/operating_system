@@ -7,7 +7,6 @@ import DaumPostcode from 'react-daum-postcode';
 import FormInput from './FormInput.tsx';
 
 import server from '../../utils/server';
-import { getProducts } from '../../../server/sheets';
 
 const { serverFunctions } = server;
 
@@ -23,7 +22,20 @@ const SearchOrder = () => {
     const [extraAddress, setExtraAddress] = useState();
     const [isPostOpen, setIsPostOpen] = useState(false);
     const [products, setProducts] = useState();
-    const [test, setTest] = useState();
+    const [selected, setSelected] = useState();
+    const [selectNum, setSelectNum] = useState();
+    const [customerName, setCustomerName] = useState();
+    const [customerPhone, setCustomerPhone] = useState();
+    const [back, setBack] = useState();
+    const [isAddress1, setIsAddress1] = useState();
+    const [isZoneCode1, setIsZoneCode1] = useState();
+    const [extraAddress1, setExtraAddress1] = useState();
+    const [isPostOpen1, setIsPostOpen1] = useState(false);
+    const [selected1, setSelected1] = useState();
+    const [selectNum1, setSelectNum1] = useState();
+    const [customerName1, setCustomerName1] = useState();
+    const [customerPhone1, setCustomerPhone1] = useState();
+    const [step2, setStep2] = useState(true);
 
     const findOrder = async input => {
         try {
@@ -31,6 +43,7 @@ const SearchOrder = () => {
             const response = await serverFunctions.findOrder(input);
             setData(response);
             setSearching(false);
+            setStep2(false);
         } catch (error) {
             alert(error);
         }
@@ -53,15 +66,48 @@ const SearchOrder = () => {
         'order_option': '옵션'
     };
 
-    const cs_type = [{name: '단순반품', value: 1}, {name: '보상반품', value: 2}, {name: '교환', value: 3}, {name: '재작업', value: 4}, {name: '재발송', value: 5}];
+    const cs_type = [{name: '단순반품', value: 1}, {name: '보상반품', value: 2}, {name: '교환', value: 3}, {name: '재작업', value: 4}, {name: '재발송', value: 5}, {name: '검수필요', value: 6}];
 
     const handleSubmit = () => {
-        // setMemo('');
-        // setTypecheck(0);
-        // setCheck([]);
-        // // setData([]);
-        // setSend([]);
-        alert(test.value);
+        let cs = new Array(), ret = new Array(), ss = new Array();
+        if (check.length < 1) {
+            alert ('주문건을 선택해주세요');
+            return;
+        }
+            
+        back.map((b, i) => {
+            cs.push([cs_type[typecheck - 1].name, customerName1, customerPhone1, `${isAddress1} ${extraAddress1}`, isZoneCode1, data[check[i]].order_id, data[check[i]].order_uid, data[check[i]].seller_name, b.code, b.product, b.num, memo]);
+            if (typecheck != 5 && typecheck != 4) {
+                ret.push([customerName1, customerPhone1, `${isAddress1} ${extraAddress1}`, isZoneCode1, b.code, b.product, b.num]);
+            }
+        })
+        if (typecheck == 3 || typecheck == 5) {
+            send.map((s) => {
+                ss.push([customerName, customerPhone, `${isAddress} ${extraAddress}`, isZoneCode, s.code, s.product, s.num]);
+            })
+        }
+
+        serverFunctions.getData(cs, ret, ss)
+            .then(res => {
+                alert('접수완료')
+                setMemo('');
+                setTypecheck(0);
+                setCheck([]);
+                setData([]);
+                setSend([]);
+                setCustomerName([]);
+                setCustomerPhone([]);
+                setIsAddress([]);
+                setIsZoneCode([]);
+                setExtraAddress([]);
+                setBack([]);
+                setCustomerName1([]);
+                setCustomerPhone1([]);
+                setIsAddress1([]);
+                setIsZoneCode1([]);
+                setExtraAddress1([]);
+            })
+            .catch(err => alert(err));
     };
 
     const handleSingleCheck = (checked, id) => {
@@ -72,28 +118,58 @@ const SearchOrder = () => {
         }
     };
 
-    const addProduct = value => {
-        alert(value.value)
-        let temp = send;
-        temp[0].value = value.value;
-        temp[0].lable = value.label;
-        setSend(temp);
+    const selectProduct = value => {
+        setSelected(value);
+    }
+
+    const selectProduct1 = value => {
+        setSelected1(value);
     }
 
     const addSend = () => {
-        setSend([...send, {value: '', label: '', num: 0}]);
+        if (!selected || !selectNum) {
+            alert ('제품 정보를 입력해주세요.');
+            return;
+        }
+        let temp = [...send, {product: selected.label, code: selected.value, num: selectNum}];
+        setSelected([]);
+        setSelectNum([]);
+        setSend(temp);
     }
 
     const deleteSend = () => {
         setSend(send.slice(0, -1));
     }
 
+    const addBack = () => {
+        if (!selected1 || !selectNum1) {
+            alert ('제품 정보를 입력해주세요.');
+            return;
+        }
+        let temp = [...back, {product: selected1.label, code: selected1.value, num: selectNum1}];
+        setSelected1([]);
+        setSelectNum1([]);
+        setBack(temp);
+    }
+
+    const deleteBack = () => {
+        setBack(back.slice(0, -1));
+    }
+
     const handleRadio = (e) => {
         setTypecheck(e.currentTarget.value);
-        if (check.length > 0) {
-            setIsAddress(data[check[0]].customer_address);
-            setIsZoneCode(data[check[0]].customer_zipcode);
-        }
+        setSend([]);
+        setCustomerName([]);
+        setCustomerPhone([]);
+        setIsAddress([]);
+        setIsZoneCode([]);
+        setExtraAddress([]);
+        setBack([]);
+        setCustomerName1([]);
+        setCustomerPhone1([]);
+        setIsAddress1([]);
+        setIsZoneCode1([]);
+        setExtraAddress1([]);
     }
 
     const handleComplete = (data) => {
@@ -115,8 +191,69 @@ const SearchOrder = () => {
         setIsPostOpen(false);
     };
 
+    const handleComplete1 = (data) => {
+        let fullAddress = data.address;
+        let extraAddress = "";
+    
+        if (data.addressType === "R") {
+            if (data.bname !== "") {
+                extraAddress += data.bname;
+            }
+            if (data.buildingName !== "") {
+                extraAddress +=
+                extraAddress !== "" ? `, ${data.buildingName}` : data.buildingName;
+            }
+            fullAddress += extraAddress !== "" ? ` (${extraAddress})` : "";
+        }
+        setIsZoneCode1(data.zonecode);
+        setIsAddress1(fullAddress);
+        setIsPostOpen1(false);
+    };
+
     const handlePost = () => {
         setIsPostOpen(!isPostOpen);
+    }
+
+    const handlePost1 = () => {
+        setIsPostOpen1(!isPostOpen1);
+    }
+
+    const handleCopy = () => {
+        if (check.length > 0) {
+            setIsAddress(data[check[0]].customer_address);
+            setIsZoneCode(data[check[0]].customer_zipcode);
+            let temp = [...send];
+            let alertText = ''
+            check.map((c) => {
+                if (products.findIndex(x => x.value === data[c].product_code) > -1) {
+                    temp.push({product: data[c].product_name, code: data[c].product_code, num: data[c].product_num});
+                } else {
+                    alertText += `${data[c].product_code} `;
+                }
+            })
+            if (alertText.length > 0) {
+                alert(`${alertText}제품은 현재 발송 불가능합니다`);
+            }
+            setSend(temp);
+            setCustomerName(data[check[0]].customer_name);
+            setCustomerPhone(data[check[0]].customer_phone);
+        }
+    }
+
+    const handleCopy1 = () => {
+        if (check.length > 0) {
+            setIsAddress1(data[check[0]].customer_address);
+            setIsZoneCode1(data[check[0]].customer_zipcode);
+            let temp = [...back];
+            check.map((c) => {
+                if (products.findIndex(x => x.value === data[c].product_code) > -1) {
+                    temp.push({product: data[c].product_name, code: data[c].product_code, num: data[c].product_num});
+                }
+            })
+            setBack(temp);
+            setCustomerName1(data[check[0]].customer_name);
+            setCustomerPhone1(data[check[0]].customer_phone);
+        }
     }
 
     const postCodeStyle = {
@@ -142,22 +279,13 @@ const SearchOrder = () => {
 
     return (
         <div style={{ padding: '3px', fontSize: 12, width: 1490}}>
-            <p>
-                <b>☀️ Bootstrap demo! ☀️</b>
-            </p>
-            <p>
-                This is a sample app that uses the <code>react-bootstrap</code> library
-                to help us build a simple React app. Enter a name for a new sheet, hit
-                enter and the new sheet will be created. Click the red{' '}
-                <span className="text-danger">&times;</span> next to the sheet name to
-                delete it.
-            </p>
             <FormInput findOrder={findOrder}/>
             <div>
                 {searching ? 
                     <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
                         <Spinner animation="border" role="status" />
                     </div> :
+                    <div className='tableWrap'>
                     <Table striped bordered hover size="sm">
                         <thead>
                             <tr>
@@ -169,7 +297,7 @@ const SearchOrder = () => {
                                     </div>
                                 </th>
                                 {Object.keys(list_header).map((k) => (
-                                    <th className={k}>
+                                    <th className={`th-${k}`}>
                                         <div className='data_div'>
                                             {list_header[k]}
                                         </div>
@@ -197,6 +325,7 @@ const SearchOrder = () => {
                                 ))}
                         </tbody>
                     </Table>
+                    </div>
                 }
 
                 <hr />
@@ -216,22 +345,101 @@ const SearchOrder = () => {
                     </Form.Group>
                 </div>
 
+                {(typecheck == 1 || typecheck == 2 || typecheck == 3 || typecheck == 6) &&
+                    <div>
+                        <hr />
+                        <div className='title'>
+                            상품 회수
+                            <Button size='sm' variant='outline-secondary' style={{marginLeft: 1350}} onClick={handleCopy1}>검색내용 적용하기</Button>
+                        </div>
+                        <div style={{marginTop: 10}}>
+                            <Form style={{marginLeft: 100, marginRight: 100}}>
+                                <Row>
+                                    <Col>
+                                        <Form.Label size='sm'>수령인명</Form.Label>
+                                        <Form.Control size='sm' type='text' style={{width: 200}} value={customerName1} onChange={(e) => setCustomerName1(e.currentTarget.value)} />
+                                    </Col>
+                                    <Col>
+                                        <Form.Label size='sm'>연락처</Form.Label>
+                                        <Form.Control size='sm' type='text' style={{width: 200}} value={customerPhone1} onChange={(e) => setCustomerPhone1(e.currentTarget.value)} />
+                                    </Col>
+                                    <Col /><Col /><Col /><Col />
+                                </Row>
+                                <br />
+                                <Form.Label size='sm'>주소</Form.Label>
+                                <Row>
+                                    <Col>
+                                        <Form.Control size='sm' type='text' value={isAddress1} disabled />
+                                    </Col>
+                                    <Col>
+                                        <Form.Control size='sm' type='text' value={extraAddress1} onChange={(e) => setExtraAddress1(e.currentTarget.value)} />
+                                    </Col>
+                                    <Col>
+                                        <Form.Control size='sm' type='text' value={isZoneCode1} disabled style={{width: 100}} />
+                                    </Col>
+                                </Row>
+                                <br />
+                                <Button size='sm' variant='outline-secondary' onClick={handlePost1}>검색</Button>
+                                {isPostOpen1 && <DaumPostcode style={postCodeStyle} onComplete={handleComplete1} />}
+                                <br />
+                                <br />
+                                <Form.Label size='sm'>제품</Form.Label>
+                                <div style={{display: 'flex', justifyContent: 'space-between'}}>
+                                    <div style={{width: 1000}}>
+                                        <Select menuPlacement='top' options={products} value={selected1} onChange={selectProduct1} />
+                                    </div>
+                                    <div style={{width: 150}}>
+                                        <Form.Control type="text" value={selectNum1} onChange={(e) => setSelectNum1(e.currentTarget.value)} />
+                                    </div>
+                                    <div style={{display: 'flex'}}>
+                                        <Button size='sm' variant="outline-secondary" onClick={addBack}>
+                                            추가
+                                        </Button>
+                                        <div style={{width: 5}} />
+                                        <Button size='sm' variant="outline-secondary" onClick={deleteBack}>
+                                            제거
+                                        </Button>
+                                    </div>
+                                </div>
+                                {back.map((b, i) => (
+                                    <div style={{width: 1200, display: 'flex', marginTop: 10}}>
+                                        <div style={{width: 490, marginRight: 20}}>
+                                            <Form.Control size='sm' type="text" disabled value={b.product} />
+                                        </div>
+                                        <div style={{width: 490, marginRight: 20}}>
+                                            <Form.Control size='sm' type="text" disabled value={b.code} />
+                                        </div>
+                                        <div style={{width: 150}}>
+                                            <Form.Control size='sm' type="text" defaultValue={b.num} onChange={(e) => {
+                                                let temp = back;
+                                                temp[i].num = e.currentTarget.value;
+                                                setBack(temp);
+                                            }} />
+                                        </div>
+                                    </div>
+                                ))}
+                            </Form>
+                        </div>
+                    </div>
+                }
+
                 {(typecheck == 3 || typecheck == 5) &&
                     <div>
                         <hr />
                         <div className='title'>
                             상품 발송
+                            <Button size='sm' variant='outline-secondary' style={{marginLeft: 1350}} onClick={handleCopy}>검색내용 적용하기</Button>
                         </div>
                         <div style={{marginTop: 10}}>
                             <Form style={{marginLeft: 100, marginRight: 100}}>
-                                <Row sty>
+                                <Row>
                                     <Col>
                                         <Form.Label size='sm'>수령인명</Form.Label>
-                                        <Form.Control size='sm' type='text' style={{width: 200}} />
+                                        <Form.Control size='sm' type='text' style={{width: 200}} value={customerName} onChange={(e) => setCustomerName(e.currentTarget.value)} />
                                     </Col>
                                     <Col>
                                         <Form.Label size='sm'>연락처</Form.Label>
-                                        <Form.Control size='sm' type='text' style={{width: 200}} />
+                                        <Form.Control size='sm' type='text' style={{width: 200}} value={customerPhone} onChange={(e) => setCustomerPhone(e.currentTarget.value)} />
                                     </Col>
                                     <Col /><Col /><Col /><Col />
                                 </Row>
@@ -253,8 +461,14 @@ const SearchOrder = () => {
                                 {isPostOpen && <DaumPostcode style={postCodeStyle} onComplete={handleComplete} />}
                                 <br />
                                 <br />
+                                <Form.Label size='sm'>제품</Form.Label>
                                 <div style={{display: 'flex', justifyContent: 'space-between'}}>
-                                    <Form.Label size='sm'>제품</Form.Label>
+                                    <div style={{width: 1000}}>
+                                        <Select menuPlacement='top' options={products} value={selected} onChange={selectProduct} />
+                                    </div>
+                                    <div style={{width: 150}}>
+                                        <Form.Control type="text" value={selectNum} onChange={(e) => setSelectNum(e.currentTarget.value)} />
+                                    </div>
                                     <div style={{display: 'flex'}}>
                                         <Button size='sm' variant="outline-secondary" onClick={addSend}>
                                             추가
@@ -266,13 +480,18 @@ const SearchOrder = () => {
                                     </div>
                                 </div>
                                 {send.map((s, i) => (
-                                    <div style={{width: 1000, display: 'flex', marginTop: 10}} key={i}>
-                                        <div style={{width: 600, marginRight: 20}}>
-                                            <Select autoFocus options={products} value={s} onChange={addProduct} />
+                                    <div style={{width: 1200, display: 'flex', marginTop: 10}}>
+                                        <div style={{width: 490, marginRight: 20}}>
+                                            <Form.Control size='sm' type="text" disabled value={s.product} />
                                         </div>
-                                        <div style={{width: 60}}>
-                                            <Form.Control type="text" />
+                                        <div style={{width: 490, marginRight: 20}}>
+                                            <Form.Control size='sm' type="text" disabled value={s.code} />
                                         </div>
+                                        <Form.Control size='sm' type="text" defaultValue={s.num} onChange={(e) => {
+                                                let temp = send;
+                                                temp[i].num = e.currentTarget.value;
+                                                setSend(temp);
+                                            }} />
                                     </div>
                                 ))}
                             </Form>
@@ -288,7 +507,7 @@ const SearchOrder = () => {
                 <hr />
                 <div>
                     {/* <Button variant="primary" type="submit" onClick={handleSubmit} disabled={!(check.length > 0 && typecheck > 0)}> */}
-                    <Button variant="primary" size='sm' type="submit" onClick={handleSubmit}>
+                    <Button variant="primary" size='sm' type="submit" onClick={handleSubmit} disabled={step2}>
                         제출
                     </Button>
                 </div>
