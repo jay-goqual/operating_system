@@ -111,3 +111,121 @@ export const getData = (cs, back, send) => {
         send_sheet.getRange(2, 1, send.length).setValue(uid).setNumberFormat('@');
     }
 }
+
+export const pushData = () => {
+    const cs_sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('접수');
+    const data = cs_sheet.getDataRange().getValues();
+    data.splice(0, 1);
+
+    if (data.length < 1) {
+        return;
+    }
+
+    let wait = new Array(), complete = new Array();
+
+    data.map((d) => {
+        if (d[2] == '교환' || d[2] == '단순반품' || d[2] == '보상반품' || d[2] == '검수필요') {
+            wait.push(d);
+        } else {
+            complete.push(d);
+        }
+    });
+
+    if (match.length > 0) {
+        const match_sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('매칭대기');
+        match_sheet.insertRowsAfter(1, wait.length);
+        match_sheet.getRange(2, 1, wait.length, wait[0].length).setValues(wait);
+    }
+
+    if (complete.length > 0) {
+        const complete_sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('최종확인');
+        complete_sheet.insertRowsAfter(1, complete.length);
+        complete_sheet.getRange(2, 1, complete.length, complete[0].length).setValues(complete);
+    }
+
+    cs_sheet.deleteRows(2, data.length);
+}
+
+export const getInspection = () => {
+    const inspection_sheet = SpreadsheetApp.openById('12tU0D6wku0XBgH3y-8cypuv6Gs45V06WvUP6c_kBbjI').getSheets()[0];
+    const push_sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('검수완료');
+
+    const data = inspection_sheet.getDataRange().getValues();
+    data.splice(0, 1);
+
+    if (data.length > 0) {
+        push_sheet.insertRowsAfter(1, data.length);
+        push_sheet.getRange(2, 1, data.length, data[0].length).setValues(data);
+    }
+}
+
+export const matchData = () => {
+    const match_sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('매칭대기');
+    const inspection_sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('검수완료');
+
+    const match_data = match_sheet.getDataRange().getValues();
+    const inspection_data = inspection_sheet.getDataRange().getValues();
+
+    match_data.splice(0, 1);
+    inspection_data.splice(0, 1);
+
+    let complete = new Array();
+    let inspection = inspection_data;
+    let match = match_data;
+
+    // match_data.map((md) => {
+    //     let temp = inspection_data.filter(x => x[1] == md[3] && x[3] == md[10] && x[5] == md[12]);
+    //     console.log(temp);
+    //     if (temp.length == 1) {
+    //         complete.push([...md.slice(0, -1), ...temp[0]]);
+    //         inspection = inspection_data.filter(x => x != temp[0]);
+    //         match = match_data.filter(x => x != md);
+    //         return;
+    //     }
+    //     if (temp.length < 1) {
+    //         md[15] = '검수대기';
+    //     }
+    //     if (temp.length > 1) {
+    //         md[15] = '검수확인필요';
+    //     }
+    //     return md;
+    // });
+
+    inspection.map((i, index) => {
+        let temp = match.filter(x => x[3] == i[1] && x[10] == i[3] && x[12] == i[5]);
+
+        if (temp.length < 1) {
+            i[14] = '반품접수필요';
+            return i;
+        }
+        if (temp.length > 1) {
+            i[14] = '수동매칭필요';
+            return i;
+        }
+
+        if (temp.length == 1) {
+            complete.push([...temp[0].slice(0, -1), ...i]);
+            inspection = inspection.filter(x => x != i);
+            match = match.filter(x => x != temp[0]);
+        }
+    });
+
+    match_sheet.deleteRows(2, match_sheet.getLastRow() - 1);
+    inspection_sheet.deleteRows(2, inspection_sheet.getLastRow() - 1);
+
+    if (match.length > 0) {
+        match_sheet.insertRowsAfter(1, match.length);
+        match_sheet.getRange(2, 1, match.length, match[0].length).setValues(match);
+    }
+
+    if (inspection.length > 0) {
+        inspection_sheet.insertRowsAfter(1, inspection.length);
+        inspection_sheet.getRange(2, 1, inspection.length, inspection[0].length).setValues(inspection);
+    }
+
+    if (complete.length > 0) {
+        const complete_sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('최종확인');
+        complete_sheet.insertRowsAfter(1, complete.length);
+        complete_sheet.getRange(2, 1, complete.length, complete[0].length).setValues(complete);
+    }
+}

@@ -14,3 +14,6 @@ global.openDialogBootstrap = publicUiFunctions.openDialogBootstrap;
 global.findOrder = publicSheetFunctions.findOrder;
 global.getProducts = publicSheetFunctions.getProducts;
 global.getData = publicSheetFunctions.getData;
+global.getInspection = publicSheetFunctions.getInspection;
+global.matchData = publicSheetFunctions.matchData;
+global.pushData = publicSheetFunctions.pushData;

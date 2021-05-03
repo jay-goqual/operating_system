@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { TransitionGroup, CSSTransition } from 'react-transition-group';
-import { Spinner, Table, Button, Col, Row, ListGroup, Form, ToggleButton, ButtonGroup } from 'react-bootstrap';
+// import { TransitionGroup, CSSTransition } from 'react-transition-group';
+import { Spinner, Table, Button, Col, Row, Form, ToggleButton, ButtonGroup } from 'react-bootstrap';
 import Select from 'react-select';
 import DaumPostcode from 'react-daum-postcode';
 
@@ -36,6 +36,7 @@ const SearchOrder = () => {
     const [customerName1, setCustomerName1] = useState();
     const [customerPhone1, setCustomerPhone1] = useState();
     const [step2, setStep2] = useState(true);
+    const [fee, setFee] = useState(0);
 
     const findOrder = async input => {
         try {
@@ -76,7 +77,8 @@ const SearchOrder = () => {
         }
             
         back.map((b, i) => {
-            cs.push([cs_type[typecheck - 1].name, customerName1, customerPhone1, `${isAddress1} ${extraAddress1}`, isZoneCode1, data[check[i]].order_id, data[check[i]].order_uid, data[check[i]].seller_name, b.code, b.product, b.num, memo]);
+            cs.push([cs_type[typecheck - 1].name, customerName1, customerPhone1, `${isAddress1} ${extraAddress1}`, isZoneCode1, data[check[i]].order_id, data[check[i]].order_uid, data[check[i]].seller_name, b.code, b.product, b.num, memo, fee]);
+            setFee(0);
             if (typecheck != 5 && typecheck != 4) {
                 ret.push([customerName1, customerPhone1, `${isAddress1} ${extraAddress1}`, isZoneCode1, b.code, b.product, b.num]);
             }
@@ -297,7 +299,8 @@ const SearchOrder = () => {
                                     </div>
                                 </th>
                                 {Object.keys(list_header).map((k) => (
-                                    <th className={`th-${k}`}>
+                                    !(k == 'order_id' || k == 'order_uid' || k == 'customer_zipcode') && 
+                                    <th className={k}>
                                         <div className='data_div'>
                                             {list_header[k]}
                                         </div>
@@ -315,6 +318,7 @@ const SearchOrder = () => {
                                             </Form>
                                         </td>
                                         {Object.keys(list_header).map((k) => (
+                                            !(k == 'order_id' || k == 'order_uid' || k == 'customer_zipcode') && 
                                             <td className={k}>
                                                 <div className='data_div'>
                                                     {data[key][k]}
@@ -363,7 +367,11 @@ const SearchOrder = () => {
                                         <Form.Label size='sm'>연락처</Form.Label>
                                         <Form.Control size='sm' type='text' style={{width: 200}} value={customerPhone1} onChange={(e) => setCustomerPhone1(e.currentTarget.value)} />
                                     </Col>
-                                    <Col /><Col /><Col /><Col />
+                                    <Col>
+                                        <Form.Label size='sm'>반품배송비</Form.Label>
+                                        <Form.Control size='sm' type='text' style={{width: 200}} value={fee} onChange={(e) => setFee(e.currentTarget.value)} />
+                                    </Col>
+                                    <Col /><Col /><Col />
                                 </Row>
                                 <br />
                                 <Form.Label size='sm'>주소</Form.Label>

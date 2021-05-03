@@ -61,7 +61,7 @@ export const pushOrder = () => {
                 customer[c_length].push(data[2 + i][3 + j]);
             }
         }
-        if (!(data[2 + i][11] == '' || data[2 + i][14] == '' || data[2 + i][15] == '')) {
+        if (!(data[2 + i][11] == '' || data[2 + i][14] === '' || data[2 + i][15] === '')) {
             const p_length = product.length;
             product.push([]);
             product2.push([]);
