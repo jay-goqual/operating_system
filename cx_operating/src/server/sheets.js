@@ -62,7 +62,7 @@ export const findOrder = input => {
 
 export const getProducts = () => {
     const url = 'https://docs.google.com/spreadsheets/d/13STuUesnhhhAoy27t1dzCDDyx6ImvZNEG8adf7JqXIc/gviz/tq?gid=0&tq=';
-    const query = `select A, B where N = 'all' or N = '10001'`;
+    const query = `select A, B, D where N = 'all' or N = '10001'`;
 
     const response = UrlFetchApp.fetch(url + query, {headers: {Authorization: "Bearer " + ScriptApp.getOAuthToken()}});
     const clean = response.getContentText();
@@ -73,7 +73,7 @@ export const getProducts = () => {
     const r = new Array();
     temp.table.rows.forEach((k, i) => {
         r.push({});
-        r[i] = {value: k.c[0].v, label: k.c[1].v}
+        r[i] = {value: k.c[0].v, label: k.c[1].v, channel: k.c[2].v}
     });
 
     return r;
@@ -131,7 +131,7 @@ export const pushData = () => {
         }
     });
 
-    if (match.length > 0) {
+    if (wait.length > 0) {
         const match_sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('매칭대기');
         match_sheet.insertRowsAfter(1, wait.length);
         match_sheet.getRange(2, 1, wait.length, wait[0].length).setValues(wait);
@@ -228,4 +228,63 @@ export const matchData = () => {
         complete_sheet.insertRowsAfter(1, complete.length);
         complete_sheet.getRange(2, 1, complete.length, complete[0].length).setValues(complete);
     }
+}
+
+export const pushArchive = () => {
+    const last = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('최종확인');
+    const archive = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('아카이브대기');
+    
+    const today = Utilities.formatDate(new Date(), 'GMT+9', 'yyyy. MM. dd');
+    const data = last.getDataRange().getValues();
+
+    let count = 0;
+
+    if (data.length > 1) {
+        data.forEach((d, i) => {
+            if (i == 0) return;
+            if (d[29] != '' && d[29] != null) {
+                data[i][30] = today;
+                count++;
+            }
+        });
+    
+        last.getDataRange().setValues(data).sort({column: 31, ascending: false});
+
+        const move = last.getRange(2, 1, count, data[0].length).getValues();
+        last.deleteRows(2, count);
+        archive.insertRowsAfter(1, count);
+        archive.getRange(2, 1, count, data[0].length).setValues(move);
+    }
+}
+
+export const archiveData = () => {
+    const this_year = Utilities.formatDate(new Date(), 'GMT+9', 'yyyy') + '년';
+    const folder = DriveApp.getFolderById('19uccVeoDg81X3MA2dgEWuKRT4-9obd8d');
+    const files = folder.getFilesByName(this_year);
+    let file;
+
+    if (files.hasNext()) {
+        file = files.next();
+    } else {
+        const source = {
+            title: this_year,
+            mimeType: MimeType.GOOGLE_SHEETS,
+            parents: [{id: folder.getId()}]
+        }
+        file = DriveApp.getFileById(Drive.Files.insert(source).id);
+        let ss2 = SpreadsheetApp.openById(file.getId()).getSheets()[0];
+        const firstrow = [['UID', '접수일', '구분', '수령인명', '전화번호', '주소', '우편번호', '주문번호', '상품주문번호', '셀러명', '상품코드', '상품명', '수량', '문의메모', '반품배송비', '입고일', '발송인명', '발송주소지', '입고상품코드', '입고상품명', '입고상품수량', '사용여부', '시리얼넘버', 'LOT', '검수내용', '결과구분', '검수결과', '검수완료일', '검수메모', '처리결과', '최종처리일자']];
+        ss2.getRange(1, 1, 1, firstrow[0].length).setValues(firstrow);
+        ss2.deleteRows(2, 999);
+    }
+
+    const ss = SpreadsheetApp.openById(file.getId());
+    const ss1 = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('아카이브대기');
+    const data = ss1.getDataRange().getValues();
+    data.splice(0, 1);
+    if (data.length > 0) {
+        ss1.deleteColumns(2, data.length);
+        ss.insertRowsAfter(1, data.length);
+        ss.getRange(2, 1, data.length, data[0].length).setValues(data);
+    };
 }

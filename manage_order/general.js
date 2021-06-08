@@ -31,7 +31,7 @@ async function download_general_Order() {
 
 async function download_curtain_Order() {
     const ss = SpreadsheetApp.getActiveSpreadsheet();
-    await download_Order([ss.getSheetByName('제이에스비즈'), ss.getSheetByName('건인디앤씨')]);
+    await download_Order([ss.getSheetByName('제이에스비즈'), ss.getSheetByName('건인디앤씨'), ss.getSheetByName('드림캐쳐')]);
 }
 
 async function fetch_Order_button() {

@@ -21,6 +21,9 @@ async function submit_Check() {
             target_table[find] = c.splice(0, 26);
             if(target_table[find][order_form.get('상품코드')].indexOf('CF201') > 0) {
                 target_table[find][order_form.get('출고채널')] = '건인디앤씨'; 
+                target_table[find][order_form.get('택배사')] = 'CJ대한통운';
+            } else if (target_table[find][order_form.get('상품코드')].indexOf('CF211') > 0) {
+                target_table[find][order_form.get('출고채널')] = '드림캐쳐'; 
                 target_table[find][order_form.get('택배사')] = '로젠택배';
             } else {
                 target_table[find][order_form.get('출고채널')] = '제이에스비즈';

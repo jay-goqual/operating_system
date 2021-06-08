@@ -1,6 +1,17 @@
 var order_form = get_Order_form();
 var ref = get_Ref();
 
+async function download_Order_new(channel) {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    
+    channels.forEach((c) => {
+        if (ss.getSheetByName(c).getLastRow <= 1) {
+            return;
+        }
+        
+    })
+}
+
 async function download_Order(channels) {
     const ss = SpreadsheetApp.getActiveSpreadsheet();
     // const channels = [ss.getSheetByName(channel)];
@@ -30,7 +41,7 @@ async function download_Order(channels) {
             }); */
 
             let temp = time.findIndex((x) => {
-                if (c.getName() == '제이에스비즈' || c.getName() == '건인디앤씨') {
+                if (c.getName() == '제이에스비즈' || c.getName() == '건인디앤씨' || c.getName() == '드림캐쳐') {
                     return x[order_form.get('상품주문번호')] == t[1];
                 } else if (c.getName() == '박스풀') {
                     return x[order_form.get('상품주문번호')] == t[4];

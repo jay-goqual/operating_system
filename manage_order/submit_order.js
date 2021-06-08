@@ -161,7 +161,11 @@ async function fetch_Additional_info() {
                 if ((o[order_form.get('셀러코드')][0] == '2' || o[order_form.get('셀러코드')] == '30007' || o[order_form.get('셀러명')] == '직접발주') && o[order_form.get('출고채널')] == '대기_커튼') {
                     o[order_form.get('출고채널')] = '제이에스비즈';
                 } else if ((o[order_form.get('셀러코드')][0] == '2' || o[order_form.get('셀러코드')] == '30007' || o[order_form.get('셀러명')] == '직접발주') && o[order_form.get('출고채널')] == '대기_커튼천') {
-                    o[order_form.get('출고채널')] = '건인디앤씨';
+                    if (o[order_form.get('상품코드')].indexOf('CF201') > 0) {
+                        o[order_form.get('출고채널')] = '건인디앤씨';
+                    } else {
+                        o[order_form.get('출고채널')] = '드림캐쳐';
+                    }
                 }
                 o[order_form.get('택배사')] = delivery.get(p.get('출고채널'));
             }

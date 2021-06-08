@@ -17,3 +17,5 @@ global.getData = publicSheetFunctions.getData;
 global.getInspection = publicSheetFunctions.getInspection;
 global.matchData = publicSheetFunctions.matchData;
 global.pushData = publicSheetFunctions.pushData;
+global.archiveData = publicSheetFunctions.archiveData;
+global.pushArchive = publicSheetFunctions.pushArchive;

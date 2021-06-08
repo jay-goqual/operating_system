@@ -95,7 +95,7 @@ async function send_Invoice() {
         const new_sheet = SpreadsheetApp.create(`${Utilities.formatDate(new Date(), 'GMT+9', 'yyMMdd')}_출고완료_${name}`);
         c.copyTo(new_sheet);
         new_sheet.deleteSheet(new_sheet.getSheets()[0]);
-        if (name == '스마트스토어') {
+        if (name == '스마트스토어' || name == '샵플렛') {
             new_sheet.getSheets()[0].setName('발송처리');
         } else {
             new_sheet.getSheets()[0].setName(name);

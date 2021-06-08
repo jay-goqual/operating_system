@@ -67,7 +67,7 @@ const SearchOrder = () => {
         'order_option': '옵션'
     };
 
-    const cs_type = [{name: '단순반품', value: 1}, {name: '보상반품', value: 2}, {name: '교환', value: 3}, {name: '재작업', value: 4}, {name: '재발송', value: 5}, {name: '검수필요', value: 6}];
+    const cs_type = [{name: '단순반품', value: 1}, {name: '보상반품', value: 2}, {name: '교환/재작업', value: 3}, {name: '재발송', value: 5}, {name: '검수필요', value: 6}];
 
     const handleSubmit = () => {
         let cs = new Array(), ret = new Array(), ss = new Array();
@@ -80,12 +80,14 @@ const SearchOrder = () => {
             cs.push([cs_type[typecheck - 1].name, customerName1, customerPhone1, `${isAddress1} ${extraAddress1}`, isZoneCode1, data[check[i]].order_id, data[check[i]].order_uid, data[check[i]].seller_name, b.code, b.product, b.num, memo, fee]);
             setFee(0);
             if (typecheck != 5 && typecheck != 4) {
-                ret.push([customerName1, customerPhone1, `${isAddress1} ${extraAddress1}`, isZoneCode1, b.code, b.product, b.num]);
+                let t = products.filter(x => x.value === b.code);
+                ret.push([customerName1, customerPhone1, `${isAddress1} ${extraAddress1}`, isZoneCode1, b.code, b.product, t[0].channel, b.num, memo]);
             }
         })
         if (typecheck == 3 || typecheck == 5) {
             send.map((s) => {
-                ss.push([customerName, customerPhone, `${isAddress} ${extraAddress}`, isZoneCode, s.code, s.product, s.num]);
+                let t = products.filter(x => x.value === s.code);
+                ss.push([customerName, customerPhone, `${isAddress} ${extraAddress}`, isZoneCode, s.code, s.product, t[0].channel, s.num, memo]);
             })
         }
 
