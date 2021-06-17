@@ -4,8 +4,9 @@ export const onOpen = () => {
     // .addItem('Sheet Editor', 'openDialog')
     .addItem('검색', 'openDialogBootstrap')
     // .addItem('접수완료', 'archiveData')
-    .addItem('자동매칭', 'matchData')
-    .addItem('검수데이터 가져오기', 'getInspection')
+    .addItem('수동매칭', 'matchData')
+    .addItem('재작업 다운로드', 'downloadRework')
+    // .addItem('검수데이터 가져오기', 'getInspection')
     // .addItem('About me', 'openAboutSidebar');
 
   menu.addToUi();

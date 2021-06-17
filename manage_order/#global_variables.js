@@ -1,7 +1,9 @@
-//ref 전역선언
-// var ref = get_Ref();
+// 스프레드시트 = 파일
+// 시트 = 스프레드시트 내의 시트
 
-//[전역]레퍼런스(id) 가져오기
+// 전역으로 사용되는 함수들이 작성된 파일입니다.
+
+// 레퍼런스 시트에서 각 연동파일의 ID 값 가져오기
 function get_Ref() {
     const table = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('레퍼런스').getDataRange().getValues();
     let ref = new Map();
@@ -13,15 +15,13 @@ function get_Ref() {
     return ref;
 }
 
-//Ref 찾기
+//Ref값 찾기
 function find_Ref(key) {
     return ref.get(key);
 }
 
-//[전역]이메일 가져오기
-//셀러관리 이후 셀러관리에서 셀러정보 가져오는 것으로 변경
+// 셀러관리 스프레드시트 파일에서 각 업체의 정보(이메일, 대시보드 파일 ID, 양식종류 등) 불러오기
 function get_Client() {
-    //const table = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('이메일').getDataRange().setNumberFormat('@').getValues();
     const table = SpreadsheetApp.openById(ref.get('셀러관리')).getSheetByName('업체DB').getDataRange().getValues();
     let client = new Map();
 
@@ -36,10 +36,8 @@ function get_Client() {
     return client;
 }
 
-//[전역]변환양식 가져오기
-//요청양식에서 변환양식 가져옴
+// 요청양식(파일 업로드시 적용) 시트에서 각 양식 불러오기
 function get_Fetch_form() {
-    //const table = SpreadsheetApp.openById(ref['출고요청/요청양식']).getDataRange().getValues();
     const table = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('요청양식').getDataRange().getValues();
 
     let fetch_form = new Map();
@@ -51,7 +49,7 @@ function get_Fetch_form() {
     return fetch_form;
 }
 
-//[전역]상품 가져오기
+// 상품관리 스프레드시트에서 상품 정보 불러오기
 function get_Product() {
     const table = SpreadsheetApp.openById(ref.get('상품관리')).getSheetByName('상품DB').getDataRange().getValues();
     let product = new Map();
@@ -67,7 +65,7 @@ function get_Product() {
     return product;
 }
 
-//[전역]양식정보 가져오기
+// 출고관리 스프레드시트의 주문서 양식을 저장해둔 [주문양식] 시트의 정보 불러오기
 function get_Order_form() {
     const table = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('주문양식').getDataRange().getValues();
 
@@ -80,7 +78,7 @@ function get_Order_form() {
     return order_form;
 }
 
-//[전역]택배사 가져오기
+// 각 출고처의 택배사 정보를 [택배사] 시트에서 불러오기
 function get_Delivery() {
     const table = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('택배사').getDataRange().getValues();
 
@@ -93,6 +91,7 @@ function get_Delivery() {
     return delivery;
 }
 
+// 각 판매처에게 전달될 때 사용되는 양식을 [전달양식] 시트에서 불러오기
 function get_Invoice_form() {
     const table = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('전달양식').getDataRange().getValues();
     let invoice_form = new Map();

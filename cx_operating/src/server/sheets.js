@@ -79,10 +79,11 @@ export const getProducts = () => {
     return r;
 }
 
-export const getData = (cs, back, send) => {
+export const getData = (cs, back, send, check) => {
     const back_sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('회수필요');
     const send_sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('출고필요');
     const cs_sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('접수');
+    const curtain_sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('재작업필요');
 
     let uid = cs_sheet.getRange(2, 1).getValue();
     let today = Utilities.formatDate(new Date(), 'GMT+9', 'yyyy. MM. dd');
@@ -99,16 +100,22 @@ export const getData = (cs, back, send) => {
         cs_sheet.getRange(2, 2, cs.length).setValue(today).setNumberFormat('yyyy. M. d');
     }
 
-    if (back && back.length > 0) {
-        back_sheet.insertRowsAfter(1, back.length);
-        back_sheet.getRange(2, 2, back.length, back[0].length).setValues(back).setNumberFormat('@');
-        back_sheet.getRange(2, 1, back.length).setValue(uid).setNumberFormat('@');
-    }
-
-    if (send && send.length > 0) {
-        send_sheet.insertRowsAfter(1, send.length);
-        send_sheet.getRange(2, 2, send.length, send[0].length).setValues(send).setNumberFormat('@');
-        send_sheet.getRange(2, 1, send.length).setValue(uid).setNumberFormat('@');
+    if (check == 4) {
+        curtain_sheet.insertRowsAfter(1, back.length);
+        curtain_sheet.getRange(2, 2, back.length, back[0].length).setValues(back).setNumberFormat('@');
+        curtain_sheet.getRange(2, 1, back.length).setValue(uid).setNumberFormat('@');
+    } else {
+        if (back && back.length > 0) {
+            back_sheet.insertRowsAfter(1, back.length);
+            back_sheet.getRange(2, 2, back.length, back[0].length).setValues(back).setNumberFormat('@');
+            back_sheet.getRange(2, 1, back.length).setValue(uid).setNumberFormat('@');
+        }
+    
+        if (send && send.length > 0) {
+            send_sheet.insertRowsAfter(1, send.length);
+            send_sheet.getRange(2, 2, send.length, send[0].length).setValues(send).setNumberFormat('@');
+            send_sheet.getRange(2, 1, send.length).setValue(uid).setNumberFormat('@');
+        }
     }
 }
 
@@ -287,4 +294,53 @@ export const archiveData = () => {
         ss.insertRowsAfter(1, data.length);
         ss.getRange(2, 1, data.length, data[0].length).setValues(data);
     };
+}
+
+export const downloadRework = () => {
+    const out = ['제이에스비즈', '건인디앤씨', '드림캐쳐'];
+
+    let data = {'제이에스비즈': [], '건인디앤씨': [], '드림캐쳐': []};
+    let source = '';
+
+    const orig = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('재작업필요');
+    const orig_data = orig.getDataRange().getValues();
+
+    orig_data.forEach((d) => {
+        if (d[7] == '제이에스비즈' || d[7] == '출고채널') {
+            data['제이에스비즈'].push(d);
+        }
+        if (d[7] == '건인디앤씨' || d[7] == '출고채널') {
+            data['건인디앤씨'].push(d);
+        }
+        if (d[7] == '드림캐쳐' || d[7] == '출고채널') {
+            data['드림캐쳐'].push(d);
+        }
+    });
+
+    out.forEach((o) => {
+        const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(`${o}_재작업`);
+        sheet.clear();
+        if (data[o].length > 0) {
+            sheet.getRange(1, 1, data[o].length, data[o][0].length).setValues(data[o]);
+        }
+    });
+
+    out.forEach((o) => {
+        const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(`${o}_재작업`);
+        if (sheet.getLastRow() <= 1) {
+            return;
+        }
+        const ssid = SpreadsheetApp.getActiveSpreadsheet().getId();
+        const sid = sheet.getSheetId();
+
+        const url = `https:\/\/docs.google.com\/spreadsheets\/d\/${ssid}\/export?gid=${sid}`;
+        // const response = UrlFetchApp.fetch(url, {headers: {Authorization: `Bearer ${ScriptApp.getOAuthToken()}`}});
+        source += `<a href="${url}" target="_blank">${o}<\/a><\/br>`;
+    });
+
+    if (source.length > 0) {
+        const html = HtmlService.createHtmlOutput(source);
+        SpreadsheetApp.getUi().showModalDialog(html, '오른쪽 클릭 후 [새 탭에서 열기] 클릭');
+        orig.deleteRows(2, orig.getLastRow() - 1);
+    }
 }

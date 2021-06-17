@@ -1,9 +1,6 @@
-// var ref = get_Ref();
-var order_form = get_Order_form();
-// var delivery = get_Delivery();
-// var client = get_Client();
+// CX_operating (cx 대시보드)로 대체되어 사용되지 않을 파일입니다.
 
-// var find_db = SpreadsheetApp.openById('1LzKdF7futwfIw_bw1tfko36TRQ86Yf-9jdjNPZQCdac').getSheetByName('DB').getDataRange().getValues();
+var order_form = get_Order_form();
 
 async function find_order() {
     const result_sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('커튼주문검색');
@@ -58,24 +55,6 @@ async function find_order2() {
 
     result.splice(0, 2);
 
-    /* let find = new Array();
-
-    for (d of db) {
-        if (name == '' || phone == '') {
-            if(((d[8] == phone || d[10] == phone) && phone != '') || ((d[7] == name || d[9] == name) && name != '')) {
-                find.push(d);
-            }   
-        } else {
-            if((d[8] == phone && d[7] == name) || ((d[10] == phone) && (d[9] == name))) {
-                find.push(d);
-            }
-        }
-    }
-    find.forEach(f => {
-        let temp = [f[0], f[1], f[3], f[4], f[7], f[8], f[9], f[10], f[11], f[12], f[5], f[16], f[6]];
-        result.push(temp);
-    }); */
-
     if (result.length > 0) {
         sheet.getRange(6, 1, result.length, 14).setValues(result);
     }
@@ -94,7 +73,6 @@ async function find_Order3() {
     if (sheet.getName().indexOf('이전주문검색') == -1) {
         return;
     }
-    //const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('이전주문검색');
     const data = sheet.getDataRange().getValues();
 
     sheet.getRange(6, 1, 95, 20).clear().setNumberFormat('@');
@@ -115,8 +93,8 @@ async function find_Order3() {
     for (t in j) {
         for (i in j[t]) {
             if (phone == '' || name == '') {
+                let temp = new Array();
                 if(((j[t][i]['order_phone'] == phone || j[t][i]['customer_phone'] == phone) && phone != '') || ((j[t][i]['order_name'] == name || j[t][i]['customer_name'] == name) && name != '')) {
-                    let temp = new Array();
                     temp.push(j[t][i]['date_receipt'], j[t][i]['seller_name'], j[t][i]['order_id'], j[t][i]['order_uid'], j[t][i]['order_name'], j[t][i]['order_phone'], j[t][i]['customer_name'], j[t][i]['customer_phone'], j[t][i]['customer_address'], j[t][i]['customer_zipcode'], j[t][i]['product_code'], j[t][i]['product_name'], j[t][i]['product_num']);
                     result.push(temp);
                 }
@@ -130,20 +108,6 @@ async function find_Order3() {
         }
     }
     }
-    /* for (d of json) {
-        if(((d.order_phone == phone || d.customer_phone == phone) && phone != '') || ((d.order_name == name || d.order_phone == name) && name != '')) {
-            let temp = new Array();
-            for (i of d) {
-                temp.push(i);
-            }
-            find.push(temp);
-        }
-    }
-
-    find.forEach(f => {
-        let temp = [f[0], f[1], f[3], f[4], f[7], f[8], f[9], f[10], f[11], f[12], f[5], f[16], f[6]];
-        result.push(temp);
-    });*/
 
     if (result.length > 0) {
         sheet.getRange(6, 1, result.length, 13).setValues(result);
