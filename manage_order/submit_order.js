@@ -335,7 +335,7 @@ async function fetch_Additional_info() {
             }
         }
 
-        // 상품주문번호가 중복될 가능성이 있는 업체들일 경우에는 위에 계산된 상품주문번호 기입
+        // 상품주문번호가 중복될 가능성이 있는 업체들일 경우에는 위에 계산된 중복건수(num)를 기존 상품주문번호 뒤에 붙여서 기입
         if (num > 0 && (o[order_form.get('셀러명')] == '직접발주' || o[order_form.get('셀러명')] == '씨씨티비프렌즈' || o[order_form.get('셀러명')] == '나혼자살림' || o[order_form.get('셀러명')] == '도치퀸' || o[order_form.get('셀러명')] == '오늘의집' || o[order_form.get('셀러명')] == '쿠팡마켓플레이스' || o[order_form.get('셀러명')] == '프리스비')) {
             o[order_form.get('상품주문번호')] = `${o[order_form.get('상품주문번호')]}-${Utilities.formatString('%02d', num)}`;
         }
