@@ -1,37 +1,6 @@
-// const getSheets = () => SpreadsheetApp.getActive().getSheets();
+// apps script 단에서 이루어지는 함수들이 모인 파일입니다.
 
-// const getActiveSheetName = () => SpreadsheetApp.getActive().getSheetName();
-
-// export const getSheetsData = () => {
-//   const activeSheetName = getActiveSheetName();
-//   return getSheets().map((sheet, index) => {
-//     const name = sheet.getName();
-//     return {
-//       name,
-//       index,
-//       isActive: name === activeSheetName,
-//     };
-//   });
-// };
-
-// export const addSheet = sheetTitle => {
-//   SpreadsheetApp.getActive().insertSheet(sheetTitle);
-//   return getSheetsData();
-// };
-
-// export const deleteSheet = sheetIndex => {
-//   const sheets = getSheets();
-//   SpreadsheetApp.getActive().deleteSheet(sheets[sheetIndex]);
-//   return getSheetsData();
-// };
-
-// export const setActiveSheet = sheetName => {
-//   SpreadsheetApp.getActive()
-//     .getSheetByName(sheetName)
-//     .activate();
-//   return getSheetsData();
-// };
-
+// [통합] 스프레드시트에서 query를 실행하여 주문정보를 검색하는 함수입니다.
 export const findOrder = input => {
     const url = 'https://docs.google.com/spreadsheets/d/1LzKdF7futwfIw_bw1tfko36TRQ86Yf-9jdjNPZQCdac/gviz/tq?gid=0&tq=';
     const query = `select A, B, D, E, H, I, J, K, L, M, F, Q, G, O where H contains '${input}' or J contains '${input}'`;
@@ -48,11 +17,9 @@ export const findOrder = input => {
         k.c.forEach((key, j) => {
             let a = temp.table.cols[j].label;
             if (key.f) {
-                // Object.assign(r[i], {a: key.f});
                 r[i][a] = key.f
             } else {
                 r[i][a] = key.v
-                // Object.assign(r[i], {a: key.v});
             }
         });
     });
@@ -60,6 +27,7 @@ export const findOrder = input => {
     return r;
 }
 
+// [상품관리] 스프레드시트에서 상품정보를 불러오는 함수입니다.
 export const getProducts = () => {
     const url = 'https://docs.google.com/spreadsheets/d/13STuUesnhhhAoy27t1dzCDDyx6ImvZNEG8adf7JqXIc/gviz/tq?gid=0&tq=';
     const query = `select A, B, D where N = 'all' or N = '10001'`;
@@ -79,6 +47,7 @@ export const getProducts = () => {
     return r;
 }
 
+// UI에서 입력한 정보를 각 시트로 옮기는 함수입니다.
 export const getData = (cs, back, send, check) => {
     const back_sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('회수필요');
     const send_sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('출고필요');
@@ -119,6 +88,7 @@ export const getData = (cs, back, send, check) => {
     }
 }
 
+// 접수완료된 데이터를 [매칭대기] 시트 혹은 [최종확인] 시트로 옮기는 함수입니다.
 export const pushData = () => {
     const cs_sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('접수');
     const data = cs_sheet.getDataRange().getValues();
@@ -153,6 +123,7 @@ export const pushData = () => {
     cs_sheet.deleteRows(2, data.length);
 }
 
+// 검수자가 사용하는 스프레드시트에서 데이터를 불러오는 함수입니다.
 export const getInspection = () => {
     const inspection_sheet = SpreadsheetApp.openById('12tU0D6wku0XBgH3y-8cypuv6Gs45V06WvUP6c_kBbjI').getSheets()[0];
     const push_sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('검수완료');
@@ -166,6 +137,8 @@ export const getInspection = () => {
     }
 }
 
+// [매칭대기] 시트의 데이터와 [검수완료] 시트의 데이터를 비교하여 서로 매칭한 후 병합하여
+// [최종확인] 시트로 옮기는 함수입니다.
 export const matchData = () => {
     const match_sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('매칭대기');
     const inspection_sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('검수완료');
@@ -179,24 +152,6 @@ export const matchData = () => {
     let complete = new Array();
     let inspection = inspection_data;
     let match = match_data;
-
-    // match_data.map((md) => {
-    //     let temp = inspection_data.filter(x => x[1] == md[3] && x[3] == md[10] && x[5] == md[12]);
-    //     console.log(temp);
-    //     if (temp.length == 1) {
-    //         complete.push([...md.slice(0, -1), ...temp[0]]);
-    //         inspection = inspection_data.filter(x => x != temp[0]);
-    //         match = match_data.filter(x => x != md);
-    //         return;
-    //     }
-    //     if (temp.length < 1) {
-    //         md[15] = '검수대기';
-    //     }
-    //     if (temp.length > 1) {
-    //         md[15] = '검수확인필요';
-    //     }
-    //     return md;
-    // });
 
     inspection.map((i, index) => {
         let temp = match.filter(x => x[3] == i[1] && x[10] == i[3] && x[12] == i[5]);
@@ -237,6 +192,7 @@ export const matchData = () => {
     }
 }
 
+// 모든 과정이 완료된 데이터를 [아카이브대기] 시트로 옮기는 함수입니다.
 export const pushArchive = () => {
     const last = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('최종확인');
     const archive = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('아카이브대기');
@@ -264,6 +220,7 @@ export const pushArchive = () => {
     }
 }
 
+// [아카이브대기] 시티의 데이터를 각 아카이브 파일로 옮기는 함수입니다.
 export const archiveData = () => {
     const this_year = Utilities.formatDate(new Date(), 'GMT+9', 'yyyy') + '년';
     const folder = DriveApp.getFolderById('19uccVeoDg81X3MA2dgEWuKRT4-9obd8d');

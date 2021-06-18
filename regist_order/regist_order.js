@@ -1,14 +1,11 @@
+// 이전 직접발주 스프레드시트의 코드이며, 현재는 폐기되었습니다.
+
 function handle_order() {
   var sheets = SpreadsheetApp.getActiveSpreadsheet().getSheets();
   var orderData = sheets[0].getRange(3, 2, 1, 11).getValues();
   var product = sheets[0].getRange(3, 14, 15, 1).getValues();
   var count = sheets[0].getRange(3, 16, 15, 1).getValues();
   var price = sheets[0].getRange(3, 15, 15, 1).getValues();
-  
-  /*if (!product[0][0] || !count[0][0] || price[0][0] == '') {
-    SpreadsheetApp.getUi().alert('상품 정보를 입력해주세요');
-    return;
-  }*/
   
   for (i = 0; i < 15; i++) {
     if ((product[i][0] && count[i][0] && String(price[i][0])) || (!product[i][0] && !count[i][0] && !String(price[i][0]))) {
@@ -119,7 +116,6 @@ function handle_order() {
     sheets[3].getRange(2, 14, out_wait.length, 1).setValue(false).insertCheckboxes();
   }
   sheets[3].getRange(2, 16, out_wait.length, 1).setValue(false).insertCheckboxes();
-  //sheets[3].getRange(2, 18, out_wait.length, 1).insertCheckboxes().setValue(false);
   
   SpreadsheetApp.getUi().alert('등록 완료\n거래명세표를 확인하세요.');
   
@@ -139,10 +135,6 @@ function print_bill() {
   }
   
   var url = 'https://docs.google.com/spreadsheets/d/' + SpreadsheetApp.getActiveSpreadsheet().getId() + '/export?&gid=' + sheets[1].getSheetId() + '&exportFormat=pdf&size=A4&portrait=true&scale=1&gridlines=false&horizontal_alignment=CENTER&top_margin=0.5&bottom_margin=2.0&left_margin=0.0&right_margin=0.0';
-  //var htmlOutput = HtmlService.createHtmlOutput('<a href="' + url + '" target="_blank" onclick="google.script.host.close()">다운받기</a>').setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL).setSandboxMode(HtmlService.SandboxMode.IFRAME);
-  //var htmlOutput = HtmlService.createHtmlOutput('<a href="' + url + '" target="_blank" onclick="google.script.host.close()">다운받기</a>').setSandboxMode(HtmlService.SandboxMode.IFRAME);
-  //var htmlOutput = HtmlService.createHtmlOutput('<a href="' + url + '" target="_blank" onclick="google.script.host.close()">다운받기</a>');
-  //var htmlOutput = HtmlService.createHtmlOutput('<a download="거래명세서.pdf" href="' + url + '" target="_blank" onclick="google.script.host.close()">다운받기</a>');
   var html = '<p><a href="' + url + '" target="blank">다운로드</a><p>';
   var htmlOutput = HtmlService.createHtmlOutput(html)
   .setSandboxMode(HtmlService.SandboxMode.IFRAME)

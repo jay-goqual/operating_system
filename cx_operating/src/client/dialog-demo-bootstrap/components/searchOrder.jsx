@@ -1,3 +1,6 @@
+// cx 팀에서 필요한 기능들을 가진 앱?을 준비하고 있는 파일입니다.
+// 주문 검색기능과 검색된 주문들을 처리하는 기능이 포함되어 있습니다.
+
 import React, { useState, useEffect } from 'react';
 // import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import { Spinner, Table, Button, Col, Row, Form, ToggleButton, ButtonGroup } from 'react-bootstrap';
@@ -11,33 +14,61 @@ import server from '../../utils/server';
 const { serverFunctions } = server;
 
 const SearchOrder = () => {
+    // data = 주문검색 데이터 배열
     const [data, setData] = useState([]);
+    
+    // 
     const [check, setCheck] = useState([]);
+    
+    // 서칭 중을 표시하기 위한 boolean 값
     const [searching, setSearching] = useState(false);
+    
+    // 문의의 타입을 선택하기 위한 int 값
     const [typecheck, setTypecheck] = useState([]);
+    
+    // 문의 메모를 기입하기 위한 string 값
     const [memo, setMemo] = useState([]);
+    
+    // 발송 상품의 데이터를 저장하기 위한 배열
     const [send, setSend] = useState([]);
+    
+    // react-daum-postcode 라이브러리 실행을 위한 변수 4종
     const [isAddress, setIsAddress] = useState();
     const [isZoneCode, setIsZoneCode] = useState();
     const [extraAddress, setExtraAddress] = useState();
     const [isPostOpen, setIsPostOpen] = useState(false);
-    const [products, setProducts] = useState();
-    const [selected, setSelected] = useState();
-    const [selectNum, setSelectNum] = useState();
-    const [customerName, setCustomerName] = useState();
-    const [customerPhone, setCustomerPhone] = useState();
-    const [back, setBack] = useState();
     const [isAddress1, setIsAddress1] = useState();
     const [isZoneCode1, setIsZoneCode1] = useState();
     const [extraAddress1, setExtraAddress1] = useState();
     const [isPostOpen1, setIsPostOpen1] = useState(false);
+    
+    // 상품정보 배열
+    const [products, setProducts] = useState();
+    
+    // react-select 라이브러리 사용을 위한 변수
+    const [selected, setSelected] = useState();    
+    const [selectNum, setSelectNum] = useState();
     const [selected1, setSelected1] = useState();
     const [selectNum1, setSelectNum1] = useState();
+
+    // 상품 발송의 수령인 정보 변수
+    const [customerName, setCustomerName] = useState();
+    const [customerPhone, setCustomerPhone] = useState();
+
+    // 회수 상품의 데이터를 저장하기 위한 배열
+    const [back, setBack] = useState();
+
+
+    // 상품 회수 정보 변수
     const [customerName1, setCustomerName1] = useState();
     const [customerPhone1, setCustomerPhone1] = useState();
+
     const [step2, setStep2] = useState(true);
+
+    // 반품배송지 기입을 위한 int 값
     const [fee, setFee] = useState(0);
 
+    // apps script 의 주문검색 함수 호출
     const findOrder = async input => {
         try {
             setSearching(true);
@@ -50,6 +81,7 @@ const SearchOrder = () => {
         }
     };
 
+    // 최종 리턴되어야할 리스트
     const list_header = {
         'date_receipt': '접수일',
         'seller_name': '판매처',
@@ -67,6 +99,7 @@ const SearchOrder = () => {
         'order_option': '옵션'
     };
 
+    // 문의타입 종류
     const cs_type = [{name: '단순반품', value: 1}, {name: '보상반품', value: 2}, {name: '교환', value: 3}, {name: '재작업', value: 4}, {name: '재발송', value: 5}, {name: '검수필요', value: 6}];
 
     const handleSubmit = () => {
@@ -76,6 +109,7 @@ const SearchOrder = () => {
             return;
         }
             
+        // apps script 함수 호출하여 정리된 데이터를 시트로 이관
         back.map((b, i) => {
             cs.push([cs_type[typecheck - 1].name, customerName1, customerPhone1, `${isAddress1} ${extraAddress1}`, isZoneCode1, data[check[i]].order_id, data[check[i]].order_uid, data[check[i]].seller_name, b.code, b.product, b.num, memo, fee]);
             setFee(0);
@@ -114,6 +148,7 @@ const SearchOrder = () => {
             .catch(err => alert(err));
     };
 
+    // checkbox 선택을 위한 함수
     const handleSingleCheck = (checked, id) => {
         if (checked) {
             setCheck([...check, id]);
@@ -122,14 +157,17 @@ const SearchOrder = () => {
         }
     };
 
+    // 상품 선택을 위한 함수
     const selectProduct = value => {
         setSelected(value);
     }
 
+    // 상품 선택을 위한 함수
     const selectProduct1 = value => {
         setSelected1(value);
     }
 
+    // 발송상품 추가
     const addSend = () => {
         if (!selected || !selectNum) {
             alert ('제품 정보를 입력해주세요.');
@@ -141,10 +179,12 @@ const SearchOrder = () => {
         setSend(temp);
     }
 
+    // 발송상품 삭제 함수
     const deleteSend = () => {
         setSend(send.slice(0, -1));
     }
 
+    // 회수상품 추가
     const addBack = () => {
         if (!selected1 || !selectNum1) {
             alert ('제품 정보를 입력해주세요.');
@@ -156,10 +196,12 @@ const SearchOrder = () => {
         setBack(temp);
     }
 
+    // 회수상품 삭제
     const deleteBack = () => {
         setBack(back.slice(0, -1));
     }
 
+    // radio 버튼 handling
     const handleRadio = (e) => {
         setTypecheck(e.currentTarget.value);
         setSend([]);
@@ -176,6 +218,7 @@ const SearchOrder = () => {
         setExtraAddress1([]);
     }
 
+    // react-daum-post 라이브러리를 위한 함수
     const handleComplete = (data) => {
         let fullAddress = data.address;
         let extraAddress = "";
@@ -222,6 +265,7 @@ const SearchOrder = () => {
         setIsPostOpen1(!isPostOpen1);
     }
 
+    // 검색한 주문정보를 발송/회수에 복사하기 위한 함수
     const handleCopy = () => {
         if (check.length > 0) {
             setIsAddress(data[check[0]].customer_address);
@@ -266,7 +310,7 @@ const SearchOrder = () => {
         padding: "7px",
     };
     
-
+    // react 첫 road 시에 실행되는 함수
     useEffect(() => {
         const fetch = async() => {
             try {
@@ -277,19 +321,21 @@ const SearchOrder = () => {
             }
         }
         fetch();
-        // setProducts(serverFunctions.getProducts());
     }, []);
 
 
     return (
         <div style={{ padding: '3px', fontSize: 12, width: 1490}}>
+            {/* forminput.jsx 내의 인풋버튼 호출 */}
             <FormInput findOrder={findOrder}/>
             <div>
+                {/* 서칭중일 경우에는 spinner 표시 */}
                 {searching ? 
                     <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
                         <Spinner animation="border" role="status" />
                     </div> :
                     <div className='tableWrap'>
+                    {/* 검색된 결과를 표기하는 table */}
                     <Table striped bordered hover size="sm">
                         <thead>
                             <tr>
@@ -336,6 +382,7 @@ const SearchOrder = () => {
 
                 <hr />
                 <div>
+                    {/* 문의종류를 선택하는 radio 버튼 */}
                     <ButtonGroup toggle>
                         {cs_type.map((k, i) => (
                             <ToggleButton size='sm' type='radio' key={i} variant="outline-secondary" value={k.value} checked={typecheck == k.value} onChange={handleRadio}>
@@ -345,13 +392,16 @@ const SearchOrder = () => {
                     </ButtonGroup>
                 </div>
                 <div style={{marginTop: 15}}>
+                    {/* 문의 메모를 입력하는 textarea */}
                     <Form.Group>
                         <Form.Label className='title'>메모</Form.Label>
                         <Form.Control as="textarea" rows={2} value={memo} onChange={(e) => setMemo(e.currentTarget.value)} />
                     </Form.Group>
                 </div>
 
+                {/* 문의종류에 따라 표기되는 항목 변경 */}
                 {(typecheck == 1 || typecheck == 2 || typecheck == 3 || typecheck == 6 || typecheck == 4) &&
+                    // 상품회수 정보 기입을 위한 템플릿
                     <div>
                         <hr />
                         <div className='title'>
@@ -434,6 +484,7 @@ const SearchOrder = () => {
                 }
 
                 {(typecheck == 3 || typecheck == 5) &&
+                    // 상품 발송을 위한 템플릿
                     <div>
                         <hr />
                         <div className='title'>
@@ -506,17 +557,11 @@ const SearchOrder = () => {
                                 ))}
                             </Form>
                         </div>
-                        {/* {Object.keys(send).map((i) => (
-                            <div key={i}>
-                                test
-                            </div>
-                        ))} */}
                     </div>
                 }
 
                 <hr />
                 <div>
-                    {/* <Button variant="primary" type="submit" onClick={handleSubmit} disabled={!(check.length > 0 && typecheck > 0)}> */}
                     <Button variant="primary" size='sm' type="submit" onClick={handleSubmit} disabled={step2}>
                         제출
                     </Button>

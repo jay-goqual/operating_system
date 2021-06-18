@@ -1,3 +1,5 @@
+// [내부발주] 스프레드시트의 사이드바 react 코드
+
 import React, { useState, useEffect } from 'react';
 import { TransitionGroup, CSSTransition } from 'react-transition-group';
 import { Button, ListGroup } from 'react-bootstrap';

@@ -1,3 +1,6 @@
+// 위탁사 대시보드 내에 삽입되어 있는 apps script 입니다.
+
+// UI 버튼 생성
 function Init() {
     SpreadsheetApp.getUi()
         .createMenu('헤이홈')
@@ -5,24 +8,32 @@ function Init() {
     .addToUi();
 }
 
+// manage_order의 summit-order apps script와 같은 기능을 하는 함수입니다.
+// [주문접수] 시트의 데이터를 검수하여 [출고관리] 스프레드시트로 넘어가기 전 [주문데이터] 시트로 복사하는 함수
 async function push_Order() {
+    // [주문접수] 데이터 불러오기
     const order_sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('주문접수');
     order_sheet.getRange(2, 1, order_sheet.getLastRow() - 1, order_sheet.getLastColumn()).setBackground(null);
     let data = order_sheet.getDataRange().setNumberFormat('@').getValues();
     let error = [false, ''];
+
+    // 최상위 제목행 삭제
     data.splice(0, 1);
 
+    // 접수된 주문이 없을 경우 alert창 생성
     if (data.length == 0) {
         SpreadsheetApp.getUi().alert('주문이 없습니다.');
         return;
     }
 
+    // [상품관리] 정보 불러오기
     const product = get_Product();
 
+    // 모든 주문 불러오기
     data = data.map((row, i) => {
         return row.map((d, j) => {
 
-            //배송메세지 \n 삭제
+            // 배송메세지 \n 삭제
             if (j == 10 || j == 8) {
                 return d.split('\n').join(' ');
             }
@@ -38,7 +49,7 @@ async function push_Order() {
                 return d;
             }
 
-            //상품주문번호 중복 확인
+            // 상품주문번호 중복 확인
             if (j == 1) {
                 if (data.filter(x => x[1] == d).length > 1) {
                     order_sheet.getRange(i + 2, j + 1).setBackground('#f4cccc');
@@ -48,7 +59,7 @@ async function push_Order() {
                 }
             }
 
-            //상품코드 확인
+            // 상품코드 확인
             if (j == 2) {
                 if (!product.get(d)) {
                     order_sheet.getRange(i + 2, j + 1).setBackground('#f4cccc');
@@ -70,7 +81,7 @@ async function push_Order() {
                 return Utilities.formatString('%05d', temp);
             }
 
-            //전화번호 양식변경
+            // 전화번호 양식변경
             if (j == 5 || j == 7) {
                 let temp = d.split('-').join('');
                 if (Number(temp) != temp) {
@@ -86,17 +97,16 @@ async function push_Order() {
         });
     });
 
-
+    // 에러발생했을 경우, alert 창 생성
     if (error[0]) {
         SpreadsheetApp.getUi().alert(`${error[1]}\n위 에러와 셀 위치를 참고해 주문을 수정한 후 다시 실행해주세요.`);
         return;
     }
 
-    // const target = SpreadsheetApp.openById('1CXXuEY-lf00i8xCMWJT5keCFfHrPsE0MILIIeueTYMA').getSheetByName('에러확인');
+    // [주문데이터] 시트로 이동
     const target = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('주문데이터');
 
     target.insertRowsAfter(1, data.length);
-    // target.getRange(2, 2, data.length, 1).setValue(SpreadsheetApp.getActiveSpreadsheet().getSheets()[0].getRange(2, 3).getValue());
     target.getRange(2, 1, data.length, data[0].length).setNumberFormat('@').setValues(data);
 
     SpreadsheetApp.getUi().alert(`주문 제출이 완료되었습니다.\n`);
@@ -106,6 +116,7 @@ async function push_Order() {
     return;
 }
 
+// [상품관리] 스프레드시트 [상품DB] 데이터 가져오기
 function get_Product() {
     const table = SpreadsheetApp.openById('13STuUesnhhhAoy27t1dzCDDyx6ImvZNEG8adf7JqXIc').getSheetByName('상품DB').getDataRange().getValues();
     let product = new Map();
@@ -121,6 +132,7 @@ function get_Product() {
     return product;
 }
 
+// 알파벳열을 숫자로 변경하는 함수
 function convert_Column(col) {
     if (typeof col === 'string') {
         let num = 0;

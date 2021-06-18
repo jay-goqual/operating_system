@@ -1,7 +1,10 @@
 // CX_operating (cx 대시보드)로 대체되어 사용되지 않을 파일입니다.
+// [통합] 스프레드시트에 마련된 query 함수를 사용하기 위한 파일입니다.
 
 var order_form = get_Order_form();
 
+// 커튼 주문검색을 위한 함수
+// 폐기됨
 async function find_order() {
     const result_sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('커튼주문검색');
     const result_table = result_sheet.getDataRange().getValues();
@@ -30,12 +33,18 @@ async function find_order() {
     }
 }
 
+// [통합] 스프레드시트의 [검색(1)], [검색(2)], [검색(3)], [검색(4)] 시트를 활용하여 주문을 검색하는 함수입니다.
+// https://docs.google.com/spreadsheets/d/1LzKdF7futwfIw_bw1tfko36TRQ86Yf-9jdjNPZQCdac/edit#gid=0
 async function find_order2() {
+    // 현재 오픈되어 있는 시트 불러오기
     const sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+
+    // 활성화시트 이름에 검색이 포함되었는지 체크
     if (sheet.getName().indexOf('검색') == -1) {
         return;
     }
 
+    // 검색 시트에서 검색하고 싶은 사람의 이름과 전화번호를 불러오기
     const data = sheet.getDataRange().getValues();
     const name = data[2][2];
     const phone = data[2][3];
@@ -44,22 +53,28 @@ async function find_order2() {
         return;
     }
     
+    // [통합] 스프레드시트의 동일 시트명 불러오기
     const find_sheet = SpreadsheetApp.openById('1LzKdF7futwfIw_bw1tfko36TRQ86Yf-9jdjNPZQCdac').getSheetByName(sheet.getName());
 
     sheet.getRange(6, 1, 95, 14).clear().setNumberFormat('@');
 
+    // 검색 시트의 이름과 전화번호 (A1, A2) 열 변경하기
     find_sheet.getRange(1, 1).setValue(name);
     find_sheet.getRange(1, 2).setValue(phone);
 
+    // 쿼리결과를 불러오기
     const result = find_sheet.getDataRange().getValues();
 
     result.splice(0, 2);
 
+    // 붙여넣기
     if (result.length > 0) {
         sheet.getRange(6, 1, result.length, 14).setValues(result);
     }
 }
 
+// 다른 방식의 주문검색 함수
+// 폐기됨
 async function find_Order3() {
     const file = DriveApp.getFileById('16AzZFrMNIQS8R_H2Vn7loH3DhE0lAjTz');
     const file2 = DriveApp.getFileById('1w4PIC2lQprb5jRjykdi9xWKC62J7gmWs');
