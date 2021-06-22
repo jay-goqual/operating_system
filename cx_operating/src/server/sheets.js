@@ -214,9 +214,11 @@ export const pushArchive = () => {
         last.getDataRange().setValues(data).sort({column: 31, ascending: false});
 
         const move = last.getRange(2, 1, count, data[0].length).getValues();
-        last.deleteRows(2, count);
-        archive.insertRowsAfter(1, count);
-        archive.getRange(2, 1, count, data[0].length).setValues(move);
+        if (count > 0) {
+            last.deleteRows(2, count);
+            archive.insertRowsAfter(1, count);
+            archive.getRange(2, 1, count, data[0].length).setValues(move);
+        }
     }
 }
 

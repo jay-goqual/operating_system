@@ -14,8 +14,8 @@ async function fetch_Invoice(file) {
     const order_data = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('주문현황').getDataRange().getValues();
 
     // [발주체크] 시트 불러오기
-    const check_sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('발주체크');
-    const check_data = check_sheet.getDataRange().getValues();
+    // const check_sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('발주체크');
+    // const check_data = check_sheet.getDataRange().getValues();
 
     // 송장파일의 양식 생성하기 (invoice_form)
     let invoice_form = new Map();
@@ -70,12 +70,12 @@ async function fetch_Invoice(file) {
     sheet.getDataRange().setValues(order_data);
 
     // [발주체크] 시트의 출고처별 출고횟수 반영
-    if (check == 1) {
-        check_data[1][5]++;
-    } else if (check == 2) {
-        check_data[2][5]++;
-    }
-    check_sheet.getDataRange().setValues(check_data);
+    // if (check == 1) {
+        // check_data[1][5]++;
+    // } else if (check == 2) {
+        // check_data[2][5]++;
+    // }
+    // check_sheet.getDataRange().setValues(check_data);
 
     // 업로드 파일 아카이브하기
     DriveApp.getFolderById(ref.get('업로드/아카이브')).addFile(file);
@@ -114,8 +114,8 @@ async function fetch_Invoice_curtain() {
     dashboard.getSheetByName('송장번호 전달').getRange(2, 6, dashboard.getSheetByName('송장번호 전달').getLastRow() - 1, 1).clearFormat();
 
     // 발주체크 출고횟수 반영
-    const check_sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('발주체크');
-    const check_data = check_sheet.getDataRange().getValues();
+    // const check_sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('발주체크');
+    // const check_data = check_sheet.getDataRange().getValues();
 
     check_data[3][5]++;
     check_sheet.getDataRange().setValues(check_data);

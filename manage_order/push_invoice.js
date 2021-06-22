@@ -116,8 +116,8 @@ async function send_Invoice() {
     const channel = ss.getSheets();
 
     // [발주체크] 시트 불러오기
-    const check_sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('발주체크');
-    const check_data = check_sheet.getDataRange().getValues();
+    // const check_sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('발주체크');
+    // const check_data = check_sheet.getDataRange().getValues();
 
     // source = html 코드
     let source = new String();
@@ -143,7 +143,7 @@ async function send_Invoice() {
         }
 
         // 발주체크 횟수 반영
-        check_data[check_data.findIndex((v) => v[0] == name)][2]++;
+        // check_data[check_data.findIndex((v) => v[0] == name)][2]++;
         
         // 신규생성된 스프레드시트 아카이브 폴더 이동
         DriveApp.getFolderById(ref.get('다운로드/아카이브')).addFile(DriveApp.getFileById(new_sheet.getId()));
@@ -172,7 +172,7 @@ async function send_Invoice() {
     })
 
     // 발주체크 반영
-    check_sheet.getDataRange().setValues(check_data);
+    // check_sheet.getDataRange().setValues(check_data);
 
     // 다운로드해야할 파일이 있을 경우, UI 생성
     if (source.length > 0) {

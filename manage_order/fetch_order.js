@@ -11,8 +11,8 @@ async function fetch_Order(file) {
 
     // [에러확인] 시트 불러오기, [발주체크] 시트 불러오기
     const target_sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('에러확인');
-    const check_sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('발주체크');
-    const check_data = check_sheet.getDataRange().getValues();
+    // const check_sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('발주체크');
+    // const check_data = check_sheet.getDataRange().getValues();
 
     // 인수로 전달받은 파일 이름 split
     let separator = file.getName().split('_');
@@ -30,8 +30,8 @@ async function fetch_Order(file) {
         file.getParents().next().removeFile(file);
 
         // 발주체크 횟수 반영
-        check_data[check_data.findIndex((v) => v[0] == '쿠팡로켓배송')][1]++;
-        check_sheet.getDataRange().setValues(check_data);
+        // check_data[check_data.findIndex((v) => v[0] == '쿠팡로켓배송')][1]++;
+        // check_sheet.getDataRange().setValues(check_data);
         return;
     }
 
@@ -70,8 +70,8 @@ async function fetch_Order(file) {
         file.getParents().next().removeFile(file);
 
         // [발주체크] 시트 횟수 반영
-        check_data[check_data.findIndex((v) => v[0] == separator[1])][1]++;
-        check_sheet.getDataRange().setValues(check_data);
+        // check_data[check_data.findIndex((v) => v[0] == separator[1])][1]++;
+        // check_sheet.getDataRange().setValues(check_data);
     }
 }
 
@@ -107,8 +107,8 @@ async function fetch_Order_from_sheet() {
     const target_sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('에러확인');
 
     // [발주체크] 시트 불러오기
-    const check_sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('발주체크');
-    const check_data = check_sheet.getDataRange().getValues();
+    // const check_sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('발주체크');
+    // const check_data = check_sheet.getDataRange().getValues();
     
     // 모든 판매자 데이터 검색
     client.forEach((c, k) => {
@@ -142,7 +142,7 @@ async function fetch_Order_from_sheet() {
             order_sheet.deleteRows(2, order.length);
 
             // [발주체크] 횟수 반영
-            check_data[check_data.findIndex((v) => v[0] == k)][1]++;
+            // check_data[check_data.findIndex((v) => v[0] == k)][1]++;
         };
 
         // 직접발주 셀러일 경우,
@@ -171,13 +171,13 @@ async function fetch_Order_from_sheet() {
             order_sheet.deleteRows(2, order.length);
 
             // 발주체크 횟수 반영
-            check_data[check_data.findIndex((v) => v[0] == k)][1]++;
+            // check_data[check_data.findIndex((v) => v[0] == k)][1]++;
         }
         return;
     });
 
     // 발주체크 데이터 적용
-    check_sheet.getDataRange().setValues(check_data);
+    // check_sheet.getDataRange().setValues(check_data);
 }
 
 // 시트의 전체 포맷을 변경하는 함수

@@ -80,7 +80,7 @@ async function archive_Data() {
     }
 
     // [발주체크] 시트 초기화
-    const c_sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('발주체크');
-    c_sheet.getRange(2, 2, c_sheet.getLastRow() - 1, 2).setValue(0);
-    c_sheet.getRange(2, 6, 4, 1).setValue(0);
+    // const c_sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('발주체크');
+    // c_sheet.getRange(2, 2, c_sheet.getLastRow() - 1, 2).setValue(0);
+    // c_sheet.getRange(2, 6, 4, 1).setValue(0);
 }
