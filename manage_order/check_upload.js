@@ -49,6 +49,7 @@ async function check_Upload() {
 
         // 중간 오류 발생 시를 대비하여 구글 스프레드시트 타입일 경우에도 실행
         if (file.getMimeType() == MimeType.GOOGLE_SHEETS) {
+            let new_file = file.getId();
             // 주문 파일일 경우 (전역 client 정보에 _ split 2번째 인자가 셀러명으로 존재할 경우 혹은 _ split 1번째 인자가 PO일 경우(로켓배송))
             if (client.has(new_file.getName().split('_')[1]) || new_file.getName().split('_')[0] == 'PO') {
                 
