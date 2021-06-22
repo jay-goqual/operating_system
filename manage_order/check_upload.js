@@ -49,19 +49,18 @@ async function check_Upload() {
 
         // 중간 오류 발생 시를 대비하여 구글 스프레드시트 타입일 경우에도 실행
         if (file.getMimeType() == MimeType.GOOGLE_SHEETS) {
-            let new_file = file.getId();
             // 주문 파일일 경우 (전역 client 정보에 _ split 2번째 인자가 셀러명으로 존재할 경우 혹은 _ split 1번째 인자가 PO일 경우(로켓배송))
-            if (client.has(new_file.getName().split('_')[1]) || new_file.getName().split('_')[0] == 'PO') {
+            if (client.has(file.getName().split('_')[1]) || file.getName().split('_')[0] == 'PO') {
                 
                 // 주문 끌어오기 함수 실행
-                await fetch_Order(new_file);
+                await fetch_Order(file);
             }
 
             // 송장일 경우 (파일명에 배송출고현황, 작업 단위 목록, ShipmentReport 가 포함되어 있을 경우)
-            if (new_file.getName().indexOf('배송출고현황') != -1 || new_file.getName().indexOf('작업 단위 목록') != -1 || new_file.getName().indexOf('ShipmentReport') != -1) {
+            if (file.getName().indexOf('배송출고현황') != -1 || file.getName().indexOf('작업 단위 목록') != -1 || file.getName().indexOf('ShipmentReport') != -1) {
 
                 // 송장 끌어오기 함수 실행
-                await fetch_Invoice(new_file);
+                await fetch_Invoice(file);
             }
         }
     }
