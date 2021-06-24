@@ -44,14 +44,18 @@ async function fetch_Invoice(file) {
             check = 1;
         } else {
             // 박스풀 송장파일의 주문번호와 [주문현황] 주문번호가 동일한 데이터 검색 후 find 저장
-            find = invoice_data.filter(d => (d[invoice_form.get('주문번호')] == o[order_form.get('주문번호')]));
+            find = invoice_data.filter(d => (d[invoice_form.get('Invoice Number')] == o[order_form.get('주문번호')]));
             check = 2;
         }
 
         // 동일 주문번호(상품주문번호) 존재 할 경우
         if (find.length > 0) {
             // [주문현황] 데이터에 송장파일의 송장 입력
-            o[order_form.get('송장번호')] = find[0][invoice_form.get('송장번호')];
+            if (invoice_form.get('송장번호')) {
+                o[order_form.get('송장번호')] = find[0][invoice_form.get('송장번호')];
+            } else {
+                o[order_form.get('송장번호')] = find[0][invoice_form.get('Tracking Code')];
+            }
             
             // 입력 택배사와 출력택배사 다를 경우 조정
             if (o[order_form.get('택배사')] == '2 - 롯데택배') {
